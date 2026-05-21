@@ -15,10 +15,10 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-950 text-slate-100">
         <nav className="border-b border-white/10 bg-slate-900/80 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-            <a href="/profile" className="hover:text-white">
+            <a href="/profile" className="transition hover:text-cyan-300">
               Profiil
             </a>
-            <a href="/matches" className="text-xl font-bold">
+            <a href="/matches" className="transition hover:text-cyan-300">
               MM2026
             </a>
 
