@@ -16,22 +16,22 @@ export default function LoginPage() {
     });
 
     if (error) setMessage(error.message);
-    else setMessage("Check your email for login link.");
+    else setMessage("Kontrolli oma e-posti aadressi lingi olemasolu kohta.");
   }
 
   return (
     <div className="p-8 max-w-md mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
+      <h1 className="text-3xl font-bold mb-6">Logi sisse</h1>
 
       <input
         className="border rounded p-2 w-full mb-4"
-        placeholder="Your email"
+        placeholder="Sinu meiliaadress"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
 
       <button onClick={login} className="bg-black text-white rounded px-4 py-2">
-        Send login link
+        Saada logimise link
       </button>
 
       <p className="mt-4">{message}</p>

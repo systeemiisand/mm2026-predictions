@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import PredictionForm from "./PredictionForm";
 import AutoRefresh from "./AutoRefresh";
+import PowerButtons from "./PowerButtons";
+import SpyPower from "./SpyPower";
 
 const countryCodeMap: Record<string, string> = {
   ALG: "dz",
@@ -55,8 +57,6 @@ const countryCodeMap: Record<string, string> = {
   TUN: "tn",
   TUR: "tr",
   URU: "uy",
-  GER: "de",
-  FRA: "fr",
   UZB: "uz",
   COD: "cd",
   USA: "us",
@@ -100,15 +100,14 @@ export default async function MatchesPage() {
             className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl"
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-                Match #{match.id}
+              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                Mäng {match.match_number ?? match.id}
               </span>
 
-              <span className="text-xs text-slate-400">
+              <span className="text-xs  text-cyan-300">
                 {new Date(match.kickoff_at).toLocaleString()}
               </span>
             </div>
-
             <div className="grid grid-cols-3 items-center gap-4 text-center">
               <div className="text-left">
                 {getFlagUrl(match.home_team_flag, match.home_team_code) ? (
@@ -145,13 +144,18 @@ export default async function MatchesPage() {
                 )}
 
                 <div className="font-black">{match.away_team}</div>
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-cyan-300">
                   {match.away_team_code}
                 </div>
               </div>
             </div>
-
-            <PredictionForm matchId={match.id} kickoffAt={match.kickoff_at} />
+            <PredictionForm
+              matchId={match.id}
+              kickoffAt={match.kickoff_at}
+              matchMinute={match.match_minute}
+            />
+            <PowerButtons matchId={match.id} kickoffAt={match.kickoff_at} />
+            <SpyPower matchId={match.id} />
           </div>
         ))}
       </div>

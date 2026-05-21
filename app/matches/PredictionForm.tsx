@@ -6,15 +6,26 @@ import { supabase } from "@/lib/supabase";
 type Props = {
   matchId: number;
   kickoffAt: string;
+  matchMinute?: number | null;
 };
 
-export default function PredictionForm({ matchId, kickoffAt }: Props) {
+export default function PredictionForm({
+  matchId,
+  kickoffAt,
+  matchMinute,
+}: Props) {
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
   const [message, setMessage] = useState("");
   const [savedPrediction, setSavedPrediction] = useState("");
 
-  const isLocked = new Date() >= new Date(kickoffAt);
+  const hasStarted = new Date() >= new Date(kickoffAt);
+  const canLateChange =
+    hasStarted && (matchMinute ?? 999) <= 45 && lateChangeActive;
+
+  const isLocked = hasStarted && !canLateChange;
+  const [lateChangeAvailable, setLateChangeAvailable] = useState(false);
+  const [lateChangeActive, setLateChangeActive] = useState(false);
 
   useEffect(() => {
     async function loadPrediction() {
@@ -30,7 +41,20 @@ export default function PredictionForm({ matchId, kickoffAt }: Props) {
         .eq("user_id", user.id)
         .eq("match_id", matchId)
         .single();
+      const { data: latePower } = await supabase
+        .from("powers")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("power_type", "late_change")
+        .maybeSingle();
 
+      if (latePower && !latePower.used_at) {
+        setLateChangeAvailable(true);
+      }
+
+      if (latePower?.match_id === matchId && latePower.used_at) {
+        setLateChangeActive(true);
+      }
       if (data) {
         setHomeScore(String(data.predicted_home_score));
         setAwayScore(String(data.predicted_away_score));
@@ -60,18 +84,63 @@ export default function PredictionForm({ matchId, kickoffAt }: Props) {
       return;
     }
 
-    const { error } = await supabase.from("predictions").upsert({
-      user_id: user.id,
-      match_id: matchId,
-      predicted_home_score: Number(homeScore),
-      predicted_away_score: Number(awayScore),
-    });
+    const { error } = await supabase.from("predictions").upsert(
+      {
+        user_id: user.id,
+        match_id: matchId,
+        predicted_home_score: Number(homeScore),
+        predicted_away_score: Number(awayScore),
+      },
+      {
+        onConflict: "user_id,match_id",
+      },
+    );
 
     if (error) setMessage(error.message);
     else {
       setSavedPrediction(`${homeScore} - ${awayScore}`);
       setMessage("Prediction saved ✅");
     }
+  }
+  async function useLateChange() {
+    setMessage("");
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setMessage("Please login first.");
+      return;
+    }
+
+    if (!hasStarted) {
+      setMessage("Late Change can be used only after kickoff.");
+      return;
+    }
+
+    if ((matchMinute ?? 999) > 45) {
+      setMessage("Too late. Late Change works only until 45 minutes.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("powers")
+      .update({
+        match_id: matchId,
+        used_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id)
+      .eq("power_type", "late_change");
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setLateChangeAvailable(false);
+    setLateChangeActive(true);
+    setMessage("Late Change activated 🕒");
   }
 
   return (
@@ -109,6 +178,22 @@ export default function PredictionForm({ matchId, kickoffAt }: Props) {
           Save
         </button>
       </div>
+
+      {hasStarted && lateChangeAvailable && !lateChangeActive && (
+        <button
+          type="button"
+          onClick={useLateChange}
+          className="mt-3 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-cyan-200"
+        >
+          🕒 Use Late Change
+        </button>
+      )}
+
+      {lateChangeActive && (
+        <p className="mt-3 text-sm font-bold text-cyan-300">
+          🕒 Late Change active — you can edit until 45&apos;
+        </p>
+      )}
 
       {isLocked && <p className="mt-2 text-red-400">Locked</p>}
       {message && <p className="mt-2 text-sm">{message}</p>}

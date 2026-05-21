@@ -10,7 +10,7 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="mb-8 text-4xl font-black">Leaderboard</h1>
+      <h1 className="mb-8 text-4xl font-black">Edekabel</h1>
 
       <div className="space-y-4">
         {leaderboard?.map((row, index) => (
