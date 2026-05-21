@@ -104,7 +104,7 @@ export default async function MatchesPage() {
                 Mäng {match.match_number ?? match.id}
               </span>
 
-              <span className="text-xs  text-cyan-300">
+              <span className="text-xs text-slate-950">
                 {new Date(match.kickoff_at).toLocaleString()}
               </span>
             </div>
@@ -144,7 +144,7 @@ export default async function MatchesPage() {
                 )}
 
                 <div className="font-black">{match.away_team}</div>
-                <div className="text-xs text-cyan-300">
+                <div className="text-xs text-slate-950">
                   {match.away_team_code}
                 </div>
               </div>
