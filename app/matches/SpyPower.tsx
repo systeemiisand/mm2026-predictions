@@ -10,9 +10,14 @@ type Props = {
 type SpyPrediction = {
   predicted_home_score: number;
   predicted_away_score: number;
-  profiles: {
-    display_name: string;
-  } | null;
+  profiles:
+    | {
+        display_name: string;
+      }
+    | {
+        display_name: string;
+      }[]
+    | null;
 };
 
 export default function SpyPower({ matchId }: Props) {
@@ -145,7 +150,11 @@ export default function SpyPower({ matchId }: Props) {
                   key={index}
                   className="flex justify-between rounded-xl bg-white/5 px-3 py-2 text-sm"
                 >
-                  <span>{prediction.profiles?.display_name ?? "Unknown"}</span>
+                  <span>
+                    {Array.isArray(prediction.profiles)
+                      ? (prediction.profiles[0]?.display_name ?? "Unknown")
+                      : (prediction.profiles?.display_name ?? "Unknown")}
+                  </span>
                   <b>
                     {prediction.predicted_home_score} -{" "}
                     {prediction.predicted_away_score}

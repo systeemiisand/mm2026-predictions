@@ -12,13 +12,13 @@ export async function GET(request: Request) {
   if (!baseUrl) {
     return NextResponse.json(
       { error: "Missing NEXT_PUBLIC_SITE_URL" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   const response = await fetch(
     `${baseUrl}/api/sync-matches?secret=${process.env.IMPORT_SECRET}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 
   const data = await response.json();
@@ -27,3 +27,4 @@ export async function GET(request: Request) {
     success: true,
     syncResult: data,
   });
+}

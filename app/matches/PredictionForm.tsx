@@ -18,15 +18,15 @@ export default function PredictionForm({
   const [awayScore, setAwayScore] = useState("");
   const [message, setMessage] = useState("");
   const [savedPrediction, setSavedPrediction] = useState("");
+  const [lateChangeAvailable, setLateChangeAvailable] = useState(false);
+  const [lateChangeActive, setLateChangeActive] = useState(false);
 
   const hasStarted = new Date() >= new Date(kickoffAt);
+
   const canLateChange =
     hasStarted && (matchMinute ?? 999) <= 45 && lateChangeActive;
 
   const isLocked = hasStarted && !canLateChange;
-  const [lateChangeAvailable, setLateChangeAvailable] = useState(false);
-  const [lateChangeActive, setLateChangeActive] = useState(false);
-
   useEffect(() => {
     async function loadPrediction() {
       const {
