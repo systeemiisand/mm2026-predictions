@@ -15,6 +15,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-950 text-slate-100">
         <nav className="border-b border-white/10 bg-slate-900/80 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+            <a href="/profile" className="hover:text-white">
+              Profiil
+            </a>
             <a href="/matches" className="text-xl font-bold">
               MM2026
             </a>
@@ -23,9 +26,15 @@ export default function RootLayout({
               <a href="/matches" className="hover:text-white">
                 Mängud
               </a>
+
               <a href="/leaderboard" className="hover:text-white">
-                Edekabel
+                Edetabel
               </a>
+
+              <a href="/members" className="hover:text-white">
+                Osalejad
+              </a>
+
               <a href="/login" className="hover:text-white">
                 Logi sisse
               </a>
