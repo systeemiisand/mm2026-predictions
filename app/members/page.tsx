@@ -45,7 +45,7 @@ export default function MembersPage() {
           >
             <div className="flex items-center justify-between">
               <div className="text-sm font-bold text-cyan-300">
-                Member {index + 1}
+                Ennustaja {index + 1}
               </div>
 
               {member.id === userId && (
