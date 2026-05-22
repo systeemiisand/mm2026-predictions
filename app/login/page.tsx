@@ -75,6 +75,25 @@ export default function LoginPage() {
             onChange={(e) => setDisplayName(e.target.value)}
           />
         )}
+        async function resetPassword() {
+  setMessage("");
+
+  if (!email) {
+    setMessage("Sisesta email");
+    return;
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+
+  if (error) {
+    setMessage(translateError(error.message));
+    return;
+  }
+
+  setMessage("Parooli muutmise link saadeti emailile.");
+}
 
         <input
           className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
@@ -109,6 +128,12 @@ export default function LoginPage() {
             ? "Pole kontot? Registreeru"
             : "Konto olemas? Logi sisse"}
         </button>
+        <button
+  onClick={resetPassword}
+  className="mt-4 w-full text-sm text-slate-300 underline hover:text-cyan-300"
+>
+  Unustasid parooli?
+</button>
 
         {message && <p className="mt-4 text-sm text-emerald-300">{message}</p>}
       </div>
