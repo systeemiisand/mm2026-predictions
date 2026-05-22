@@ -64,7 +64,7 @@ export default function LoginPage() {
     setMessage("");
 
     if (!email) {
-      setMessage("Sisesta email");
+      setMessage("Sisesta esmalt email üleval olevasse emaili lahtrisse.");
       return;
     }
 
@@ -134,7 +134,7 @@ export default function LoginPage() {
           onClick={resetPassword}
           className="mt-4 w-full text-sm text-slate-300 underline hover:text-cyan-300"
         >
-          Unustasid parooli?
+          Saada parooli taastamise link
         </button>
 
         {message && <p className="mt-4 text-sm text-emerald-300">{message}</p>}
