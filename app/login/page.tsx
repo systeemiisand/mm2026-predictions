@@ -10,6 +10,18 @@ export default function LoginPage() {
   const [displayName, setDisplayName] = useState("");
   const [message, setMessage] = useState("");
 
+  function translateError(errorMessage: string) {
+    const msg = errorMessage.toLowerCase();
+
+    if (msg.includes("email")) return "Puudub email";
+    if (msg.includes("password")) return "Puudub parool";
+    if (msg.includes("invalid login credentials")) {
+      return "Vale email või parool";
+    }
+
+    return errorMessage;
+  }
+
   async function register() {
     setMessage("");
 
@@ -24,8 +36,12 @@ export default function LoginPage() {
       },
     });
 
-    if (error) setMessage(error.message);
-    else setMessage("Check your email to confirm registration.");
+    if (error) {
+      setMessage(translateError(error.message));
+      return;
+    }
+
+    setMessage("Kontrolli oma emaili konto kinnitamiseks.");
   }
 
   async function login() {
@@ -36,8 +52,12 @@ export default function LoginPage() {
       password,
     });
 
-    if (error) setMessage(error.message);
-    else window.location.href = "/matches";
+    if (error) {
+      setMessage(translateError(error.message));
+      return;
+    }
+
+    window.location.href = "/matches";
   }
 
   return (
