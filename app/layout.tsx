@@ -13,29 +13,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-950 text-slate-100">
-        <nav className="border-b border-white/10 bg-slate-900/80 backdrop-blur">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-            <a href="/profile" className="transition hover:text-cyan-300">
-              Profiil
-            </a>
-            <a href="/matches" className="transition hover:text-cyan-300">
+        <nav className="w-full border-b border-slate-700 bg-slate-950 text-white shadow-lg">
+          <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <a href="/matches" className="text-2xl font-black text-white">
               MM2026
             </a>
 
-            <div className="flex gap-4 text-sm text-slate-300">
-              <a href="/matches" className="hover:text-white">
+            <div className="flex flex-wrap items-center gap-5 text-sm font-semibold text-slate-100">
+              <a href="/matches" className="transition hover:text-cyan-300">
                 Mängud
               </a>
 
-              <a href="/leaderboard" className="hover:text-white">
+              <a href="/leaderboard" className="transition hover:text-cyan-300">
                 Edetabel
               </a>
 
-              <a href="/members" className="hover:text-white">
+              <a href="/members" className="transition hover:text-cyan-300">
                 Osalejad
               </a>
 
-              <a href="/login" className="hover:text-white">
+              <a href="/profile" className="transition hover:text-cyan-300">
+                Profiil
+              </a>
+
+              <a href="/login" className="transition hover:text-cyan-300">
                 Logi sisse
               </a>
             </div>
