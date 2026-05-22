@@ -112,7 +112,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
               <p className="font-black text-yellow-300">DOUBLE POINTS ACTIVE</p>
 
               <p className="text-xs text-yellow-100/70">
-                Points from this match will be doubled.
+                Selle mängu punktid duubeldatakse.
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
             ? "Activating..."
             : doubleUsed
               ? "⚡ Double Used"
-              : "⚡ Double Points"}
+              : "⚡ Toppelt punktid"}
         </button>
       )}
 

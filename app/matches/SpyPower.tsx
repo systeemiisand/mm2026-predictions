@@ -129,7 +129,7 @@ export default function SpyPower({ matchId }: Props) {
           onClick={useSpy}
           className="rounded-xl bg-purple-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-purple-200"
         >
-          👁 Spy Predictions
+          👁 Vaata teiste ennustusi
         </button>
       )}
 

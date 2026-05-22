@@ -183,7 +183,7 @@ export default function PredictionForm({
           disabled={isLocked}
           className="rounded-xl bg-emerald-500 px-5 py-3 font-bold text-slate-950 hover:bg-emerald-400 disabled:bg-slate-600 disabled:text-slate-300"
         >
-          Save
+          Kinnita
         </button>
       </div>
 
@@ -193,7 +193,7 @@ export default function PredictionForm({
           onClick={useLateChange}
           className="mt-3 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-cyan-200"
         >
-          🕒 Use Late Change
+          🕒 Kasuta hilisemat muutust
         </button>
       )}
 
