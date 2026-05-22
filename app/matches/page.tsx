@@ -130,7 +130,27 @@ export default async function MatchesPage() {
                 </div>
               </div>
 
-              <div className="text-xl font-black text-slate-500">VS</div>
+              <div className="text-center">
+                {match.home_score != null && match.away_score != null ? (
+                  <>
+                    <div className="text-3xl font-black text-white">
+                      {match.home_score} - {match.away_score}
+                    </div>
+
+                    <div className="mt-1 text-xs font-bold text-emerald-300">
+                      Tulemus
+                    </div>
+
+                    {match.home_pen != null && match.away_pen != null && (
+                      <div className="mt-1 text-xs text-purple-300">
+                        Pen {match.home_pen} - {match.away_pen}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-xl font-black text-slate-500">VS</div>
+                )}
+              </div>
 
               <div className="text-right">
                 {getFlagUrl(match.away_team_flag, match.away_team_code) ? (

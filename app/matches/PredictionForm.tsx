@@ -99,7 +99,7 @@ export default function PredictionForm({
     if (error) setMessage(error.message);
     else {
       setSavedPrediction(`${homeScore} - ${awayScore}`);
-      setMessage("Prediction saved ✅");
+      setMessage("Sinu ennustus salvestatud ✅");
     }
   }
   async function useLateChange() {
@@ -147,7 +147,7 @@ export default function PredictionForm({
     <div className="mt-5 rounded-2xl bg-white/5 p-4">
       {savedPrediction && (
         <p className="mb-3 text-sm text-emerald-300">
-          Your prediction: <b>{savedPrediction}</b>
+          Sinu ennustus: <b>{savedPrediction}</b>
         </p>
       )}
 

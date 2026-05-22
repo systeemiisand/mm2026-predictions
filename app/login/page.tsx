@@ -4,37 +4,94 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [message, setMessage] = useState("");
 
-  async function login() {
-    const { error } = await supabase.auth.signInWithOtp({
+  async function register() {
+    setMessage("");
+
+    const { error } = await supabase.auth.signUp({
       email,
+      password,
       options: {
         emailRedirectTo: `${window.location.origin}/matches`,
+        data: {
+          display_name: displayName,
+        },
       },
     });
 
     if (error) setMessage(error.message);
-    else setMessage("Kontrolli oma e-posti aadressi lingi olemasolu kohta.");
+    else setMessage("Check your email to confirm registration.");
+  }
+
+  async function login() {
+    setMessage("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) setMessage(error.message);
+    else window.location.href = "/matches";
   }
 
   return (
-    <div className="p-8 max-w-md mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Logi sisse</h1>
+    <div className="mx-auto max-w-md px-6 py-10">
+      <h1 className="mb-6 text-4xl font-black">
+        {mode === "login" ? "Logi sisse" : "Registreeru"}
+      </h1>
 
-      <input
-        className="border rounded p-2 w-full mb-4"
-        placeholder="Sinu meiliaadress"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+        {mode === "register" && (
+          <input
+            className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
+            placeholder="Sinu nimi"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
+        )}
 
-      <button onClick={login} className="bg-black text-white rounded px-4 py-2">
-        Saada logimise link
-      </button>
+        <input
+          className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <p className="mt-4">{message}</p>
+        <input
+          className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
+          placeholder="Parool"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button
+          onClick={mode === "login" ? login : register}
+          className="w-full rounded-2xl bg-emerald-500 px-6 py-3 font-black text-slate-950 hover:bg-emerald-400"
+        >
+          {mode === "login" ? "Logi sisse" : "Loo konto"}
+        </button>
+
+        <button
+          onClick={() => {
+            setMode(mode === "login" ? "register" : "login");
+            setMessage("");
+          }}
+          className="mt-4 w-full text-sm text-cyan-300 underline"
+        >
+          {mode === "login"
+            ? "Pole kontot? Registreeru"
+            : "Konto olemas? Logi sisse"}
+        </button>
+
+        {message && <p className="mt-4 text-sm text-emerald-300">{message}</p>}
+      </div>
     </div>
   );
 }
