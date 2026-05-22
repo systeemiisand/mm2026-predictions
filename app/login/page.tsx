@@ -13,11 +13,11 @@ export default function LoginPage() {
   function translateError(errorMessage: string) {
     const msg = errorMessage.toLowerCase();
 
-    if (msg.includes("email")) return "Puudub email";
-    if (msg.includes("password")) return "Puudub parool";
     if (msg.includes("invalid login credentials")) {
       return "Vale email või parool";
     }
+    if (msg.includes("email")) return "Puudub email";
+    if (msg.includes("password")) return "Puudub parool";
 
     return errorMessage;
   }
@@ -60,6 +60,26 @@ export default function LoginPage() {
     window.location.href = "/matches";
   }
 
+  async function resetPassword() {
+    setMessage("");
+
+    if (!email) {
+      setMessage("Sisesta email");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setMessage(translateError(error.message));
+      return;
+    }
+
+    setMessage("Parooli muutmise link saadeti emailile.");
+  }
+
   return (
     <div className="mx-auto max-w-md px-6 py-10">
       <h1 className="mb-6 text-4xl font-black">
@@ -75,29 +95,11 @@ export default function LoginPage() {
             onChange={(e) => setDisplayName(e.target.value)}
           />
         )}
-        async function resetPassword() {
-  setMessage("");
-
-  if (!email) {
-    setMessage("Sisesta email");
-    return;
-  }
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`,
-  });
-
-  if (error) {
-    setMessage(translateError(error.message));
-    return;
-  }
-
-  setMessage("Parooli muutmise link saadeti emailile.");
-}
 
         <input
           className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
           placeholder="Email"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -111,6 +113,7 @@ export default function LoginPage() {
         />
 
         <button
+          type="button"
           onClick={mode === "login" ? login : register}
           className="w-full rounded-2xl bg-emerald-500 px-6 py-3 font-black text-slate-950 hover:bg-emerald-400"
         >
@@ -118,6 +121,7 @@ export default function LoginPage() {
         </button>
 
         <button
+          type="button"
           onClick={() => {
             setMode(mode === "login" ? "register" : "login");
             setMessage("");
@@ -128,12 +132,14 @@ export default function LoginPage() {
             ? "Pole kontot? Registreeru"
             : "Konto olemas? Logi sisse"}
         </button>
+
         <button
-  onClick={resetPassword}
-  className="mt-4 w-full text-sm text-slate-300 underline hover:text-cyan-300"
->
-  Unustasid parooli?
-</button>
+          type="button"
+          onClick={resetPassword}
+          className="mt-4 w-full text-sm text-slate-300 underline hover:text-cyan-300"
+        >
+          Unustasid parooli?
+        </button>
 
         {message && <p className="mt-4 text-sm text-emerald-300">{message}</p>}
       </div>

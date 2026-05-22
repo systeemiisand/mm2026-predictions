@@ -3,43 +3,138 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function ResetPasswordPage() {
+export default function LoginPage() {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [message, setMessage] = useState("");
 
-  async function updatePassword() {
+  function translateError(errorMessage: string) {
+    const msg = errorMessage.toLowerCase();
+
+    if (msg.includes("email")) return "Puudub email";
+    if (msg.includes("password")) return "Puudub parool";
+    if (msg.includes("invalid login credentials")) {
+      return "Vale email või parool";
+    }
+
+    return errorMessage;
+  }
+
+  async function register() {
     setMessage("");
 
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/matches`,
+        data: {
+          display_name: displayName,
+        },
+      },
+    });
+
+    if (error) {
+      setMessage(translateError(error.message));
+      return;
+    }
+
+    setMessage("Kontrolli oma emaili konto kinnitamiseks.");
+  }
+
+  async function login() {
+    setMessage("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
       password,
     });
 
     if (error) {
-      setMessage(error.message);
+      setMessage(translateError(error.message));
       return;
     }
 
-    setMessage("Parool muudetud ✅");
+    window.location.href = "/matches";
+  }
+
+  async function resetPassword() {
+    setMessage("");
+
+    if (!email) {
+      setMessage("Sisesta email");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setMessage(translateError(error.message));
+      return;
+    }
+
+    setMessage("Parooli muutmise link saadeti emailile.");
   }
 
   return (
     <div className="mx-auto max-w-md px-6 py-10">
-      <h1 className="mb-6 text-4xl font-black">Muuda parool</h1>
+      <h1 className="mb-6 text-4xl font-black">
+        {mode === "login" ? "Logi sisse" : "Registreeru"}
+      </h1>
 
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+        {mode === "register" && (
+          <input
+            className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
+            placeholder="Sinu nimi"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
+        )}
+
         <input
           className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
-          placeholder="Uus parool"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          className="mb-4 w-full rounded-2xl bg-slate-100 p-3 font-bold text-slate-950"
+          placeholder="Parool"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
-          onClick={updatePassword}
+          onClick={mode === "login" ? login : register}
           className="w-full rounded-2xl bg-emerald-500 px-6 py-3 font-black text-slate-950 hover:bg-emerald-400"
         >
-          Salvesta uus parool
+          {mode === "login" ? "Logi sisse" : "Loo konto"}
+        </button>
+
+        <button
+          onClick={() => {
+            setMode(mode === "login" ? "register" : "login");
+            setMessage("");
+          }}
+          className="mt-4 w-full text-sm text-cyan-300 underline"
+        >
+          {mode === "login"
+            ? "Pole kontot? Registreeru"
+            : "Konto olemas? Logi sisse"}
+        </button>
+
+        <button
+          onClick={resetPassword}
+          className="mt-4 w-full text-sm text-slate-300 underline hover:text-cyan-300"
+        >
+          Unustasid parooli?
         </button>
 
         {message && <p className="mt-4 text-sm text-emerald-300">{message}</p>}
