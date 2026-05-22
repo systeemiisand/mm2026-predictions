@@ -30,17 +30,22 @@ export default function PredictionForm({
   useEffect(() => {
     async function loadPrediction() {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!user) return;
+      const user = session?.user;
+
+      if (!user) {
+        setMessage("Login session not ready. Refresh page.");
+        return;
+      }
 
       const { data } = await supabase
         .from("predictions")
         .select("*")
         .eq("user_id", user.id)
         .eq("match_id", matchId)
-        .single();
+        .maybeSingle();
       const { data: latePower } = await supabase
         .from("powers")
         .select("*")
@@ -96,12 +101,15 @@ export default function PredictionForm({
       },
     );
 
-    if (error) setMessage(error.message);
-    else {
-      setSavedPrediction(`${homeScore} - ${awayScore}`);
-      setMessage("Sinu ennustus salvestatud ✅");
+    if (error) {
+      setMessage(error.message);
+      return;
     }
+
+    setSavedPrediction(`${homeScore} - ${awayScore}`);
+    setMessage("Sinu ennustus salvestatud ✅");
   }
+
   async function useLateChange() {
     setMessage("");
 

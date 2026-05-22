@@ -39,6 +39,9 @@ export default function RootLayout({
               <a href="/login" className="transition hover:text-cyan-300">
                 Logi sisse
               </a>
+              <a href="/tournament" className="transition hover:text-cyan-300">
+                Boonus
+              </a>
             </div>
           </div>
         </nav>
