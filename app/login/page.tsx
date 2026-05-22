@@ -16,14 +16,25 @@ export default function LoginPage() {
     if (msg.includes("invalid login credentials")) {
       return "Vale email või parool";
     }
-    if (msg.includes("email")) return "Puudub email";
-    if (msg.includes("password")) return "Puudub parool";
+
+    if (msg.includes("password")) {
+      return "Parool puudub või on liiga lühike";
+    }
 
     return errorMessage;
   }
 
   async function register() {
     setMessage("");
+    if (!email) {
+      setMessage("Puudub email");
+      return;
+    }
+
+    if (!password) {
+      setMessage("Puudub parool");
+      return;
+    }
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -46,6 +57,15 @@ export default function LoginPage() {
 
   async function login() {
     setMessage("");
+    if (!email) {
+      setMessage("Puudub email");
+      return;
+    }
+
+    if (!password) {
+      setMessage("Puudub parool");
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
