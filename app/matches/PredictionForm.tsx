@@ -187,7 +187,7 @@ export default function PredictionForm({
         </button>
       </div>
 
-      {hasStarted && lateChangeAvailable && !lateChangeActive && (
+      {lateChangeAvailable && !lateChangeActive && (
         <button
           type="button"
           onClick={useLateChange}
@@ -197,7 +197,7 @@ export default function PredictionForm({
         </button>
       )}
 
-      {lateChangeActive && (
+      {lateChangeActive && (matchMinute ?? 999) <= 45 && (
         <p className="mt-3 text-sm font-bold text-cyan-300">
           🕒 Late Change active — you can edit until 45&apos;
         </p>
