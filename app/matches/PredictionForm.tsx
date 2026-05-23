@@ -36,7 +36,7 @@ export default function PredictionForm({
       const user = session?.user;
 
       if (!user) {
-        setMessage("Login session not ready. Refresh page.");
+        setMessage("Sisselogimine pole valmis. Värskenda lehte.");
         return;
       }
 
@@ -80,12 +80,12 @@ export default function PredictionForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Palun logige esmalt sisse.");
+      setMessage("Palun logi sisse.");
       return;
     }
 
     if (isLocked) {
-      setMessage("Ennustus on lukustatud.");
+      setMessage("Ennustus on lukus.");
       return;
     }
 
@@ -129,7 +129,7 @@ export default function PredictionForm({
 
     if ((matchMinute ?? 999) > 45) {
       setMessage(
-        "Liiga hilja. Hiline muutmine töötab ainult kuni 45 minutini.",
+        "Liiga hilja. Hiline muutmine töötab ainult kuni 45. minutini.",
       );
       return;
     }
@@ -150,7 +150,7 @@ export default function PredictionForm({
 
     setLateChangeAvailable(false);
     setLateChangeActive(true);
-    setMessage("Hilinenud muudatus aktiveeritud 🕒");
+    setMessage("Hilinenud muutus aktiveeritud 🕒");
   }
 
   return (
@@ -205,7 +205,7 @@ export default function PredictionForm({
         </p>
       )}
 
-      {isLocked && <p className="mt-2 text-red-400">Locked</p>}
+      {isLocked && <p className="mt-2 text-red-400">Lukus</p>}
       {message && <p className="mt-2 text-sm">{message}</p>}
     </div>
   );
