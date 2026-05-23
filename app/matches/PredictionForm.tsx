@@ -7,6 +7,10 @@ type Props = {
   matchId: number;
   kickoffAt: string;
   matchMinute?: number | null;
+  initialPrediction?: {
+    predicted_home_score: number;
+    predicted_away_score: number;
+  };
 };
 
 export default function PredictionForm({
@@ -28,6 +32,14 @@ export default function PredictionForm({
 
   const isLocked = hasStarted && !canLateChange;
   useEffect(() => {
+    if (initialPrediction) {
+      setHomeScore(String(initialPrediction.predicted_home_score));
+      setAwayScore(String(initialPrediction.predicted_away_score));
+      setSavedPrediction(
+        `${initialPrediction.predicted_home_score} - ${initialPrediction.predicted_away_score}`,
+      );
+      return;
+    }
     async function loadPrediction() {
       const {
         data: { session },
