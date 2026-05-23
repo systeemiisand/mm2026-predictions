@@ -17,7 +17,7 @@ export default function RootLayout({
         <nav className="w-full border-b border-slate-700 bg-slate-950 text-white shadow-lg">
           <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <a href="/matches" className="text-2xl font-black text-white">
-              MM2026
+              MM2026 Mängud ⚽
             </a>
 
             <div className="flex flex-wrap items-center gap-5 text-sm font-semibold text-slate-100">
