@@ -17,15 +17,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
   }
 
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
   const response = await fetch("https://api.wc2026api.com/matches", {
     headers: {
       Authorization: `Bearer ${apiKey}`,
     },
   });
 
+  await supabase.from("api_usage_logs").insert({
+    endpoint: "/matches",
+    status: response.status,
+  });
+
   if (!response.ok) {
     return NextResponse.json(
-      { error: "WC2026 API failed", status: response.status },
+      {
+        error: "WC2026 API failed",
+        status: response.status,
+      },
       { status: 500 },
     );
   }
@@ -78,8 +88,6 @@ export async function POST(request: Request) {
 
     prediction_mode: "score",
   }));
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { error } = await supabase
     .from("matches")

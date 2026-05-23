@@ -1,4 +1,5 @@
 import "./globals.css";
+import LogoutButton from "@/components/LogoutButton";
 
 export const metadata = {
   title: "MM2026 Predictions",
@@ -36,15 +37,15 @@ export default function RootLayout({
                 Profiil
               </a>
 
-              <a href="/login" className="transition hover:text-cyan-300">
-                Logi sisse
-              </a>
               <a href="/tournament" className="transition hover:text-cyan-300">
                 Boonus
               </a>
+
               <a href="/rules" className="transition hover:text-cyan-300">
                 Reeglid
               </a>
+
+              <LogoutButton />
             </div>
           </div>
         </nav>
