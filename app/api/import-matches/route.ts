@@ -25,6 +25,10 @@ export async function POST(request: Request) {
       Authorization: `Bearer ${apiKey}`,
     },
   });
+  await supabase.from("api_usage_logs").insert({
+    endpoint: "/matches",
+    status: response.status,
+  });
 
   if (!response.ok) {
     return NextResponse.json(
