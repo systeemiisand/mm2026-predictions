@@ -84,7 +84,7 @@ export default function SpyPower({ matchId }: Props) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Please login first.");
+      setMessage("Palun logi sisse.");
       return;
     }
 
@@ -97,7 +97,7 @@ export default function SpyPower({ matchId }: Props) {
 
     if (existing?.used_at) {
       setSpyAlreadyUsed(true);
-      setMessage("Spy already used.");
+      setMessage("Spioon on juba kasutatud.");
       return;
     }
 
@@ -117,7 +117,7 @@ export default function SpyPower({ matchId }: Props) {
 
     setSpyAlreadyUsed(true);
     setSpyUsedForThisMatch(true);
-    setMessage("Spy activated 👁");
+    setMessage("Spioon aktiveeritud 👁");
     loadPredictions();
   }
 
@@ -134,15 +134,17 @@ export default function SpyPower({ matchId }: Props) {
       )}
 
       {spyAlreadyUsed && !spyUsedForThisMatch && (
-        <p className="text-sm text-purple-300">👁 Spy already used</p>
+        <p className="text-sm text-purple-300">👁 Spioon juba kasutatud</p>
       )}
 
       {spyUsedForThisMatch && (
         <div className="rounded-2xl border border-purple-300/40 bg-purple-300/10 p-3">
-          <p className="mb-2 font-black text-purple-300">👁 Spy Results</p>
+          <p className="mb-2 font-black text-purple-300">
+            👁 Spiooni tulemused
+          </p>
 
           {predictions.length === 0 ? (
-            <p className="text-sm text-slate-400">No predictions yet.</p>
+            <p className="text-sm text-slate-400">Ennustusi veel pole.</p>
           ) : (
             <div className="space-y-2">
               {predictions.map((prediction, index) => (
@@ -152,8 +154,8 @@ export default function SpyPower({ matchId }: Props) {
                 >
                   <span>
                     {Array.isArray(prediction.profiles)
-                      ? (prediction.profiles[0]?.display_name ?? "Unknown")
-                      : (prediction.profiles?.display_name ?? "Unknown")}
+                      ? (prediction.profiles[0]?.display_name ?? "Tundmatu")
+                      : (prediction.profiles?.display_name ?? "Tundmatu")}
                   </span>
                   <b>
                     {prediction.predicted_home_score} -{" "}
