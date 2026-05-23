@@ -7,17 +7,11 @@ type Props = {
   matchId: number;
   kickoffAt: string;
   matchMinute?: number | null;
-  initialPrediction?: {
-    predicted_home_score: number;
-    predicted_away_score: number;
-  };
 };
-
 export default function PredictionForm({
   matchId,
   kickoffAt,
   matchMinute,
-  initialPrediction,
 }: Props) {
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
@@ -27,38 +21,43 @@ export default function PredictionForm({
   const [lateChangeActive, setLateChangeActive] = useState(false);
 
   const hasStarted = new Date() >= new Date(kickoffAt);
-
   const canLateChange =
     hasStarted && (matchMinute ?? 999) <= 45 && lateChangeActive;
-
   const isLocked = hasStarted && !canLateChange;
+
   useEffect(() => {
-    if (initialPrediction) {
-      setHomeScore(String(initialPrediction.predicted_home_score));
-      setAwayScore(String(initialPrediction.predicted_away_score));
-      setSavedPrediction(
-        `${initialPrediction.predicted_home_score} - ${initialPrediction.predicted_away_score}`,
-      );
-      return;
-    }
     async function loadPrediction() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       const user = session?.user;
-
-      if (!user) {
-        setMessage("Sisselogimine pole valmis. Värskenda lehte.");
-        return;
-      }
+      if (!user) return;
 
       const { data } = await supabase
         .from("predictions")
-        .select("*")
+        .select("predicted_home_score, predicted_away_score")
         .eq("user_id", user.id)
         .eq("match_id", matchId)
         .maybeSingle();
+
+      if (data) {
+        setHomeScore(String(data.predicted_home_score));
+        setAwayScore(String(data.predicted_away_score));
+        setSavedPrediction(
+          `${data.predicted_home_score} - ${data.predicted_away_score}`,
+        );
+      }
+    }
+
+    async function loadLatePower() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const user = session?.user;
+      if (!user) return;
+
       const { data: latePower } = await supabase
         .from("powers")
         .select("*")
@@ -73,16 +72,10 @@ export default function PredictionForm({
       if (latePower?.match_id === matchId && latePower.used_at) {
         setLateChangeActive(true);
       }
-      if (data) {
-        setHomeScore(String(data.predicted_home_score));
-        setAwayScore(String(data.predicted_away_score));
-        setSavedPrediction(
-          `${data.predicted_home_score} - ${data.predicted_away_score}`,
-        );
-      }
     }
 
     loadPrediction();
+    loadLatePower();
   }, [matchId]);
 
   async function savePrediction() {
@@ -131,18 +124,18 @@ export default function PredictionForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Palun logige esmalt sisse.");
+      setMessage("Palun logi sisse.");
       return;
     }
 
     if (!hasStarted) {
-      setMessage("Hilinenud ennustust saab kasutada ainult pärast avavilet.");
+      setMessage("Hilisemat muutust saab kasutada ainult pärast avavilet.");
       return;
     }
 
     if ((matchMinute ?? 999) > 45) {
       setMessage(
-        "Liiga hilja. Hiline muutmine töötab ainult kuni 45. minutini.",
+        "Liiga hilja. Hilisem muutus töötab ainult kuni 45. minutini.",
       );
       return;
     }
@@ -163,7 +156,7 @@ export default function PredictionForm({
 
     setLateChangeAvailable(false);
     setLateChangeActive(true);
-    setMessage("Hilinenud muutus aktiveeritud 🕒");
+    setMessage("Hilisem muutus aktiveeritud 🕒");
   }
 
   return (
@@ -208,13 +201,13 @@ export default function PredictionForm({
           onClick={useLateChange}
           className="mt-3 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-cyan-200"
         >
-          🕒 Kasuta hilisemat muutust
+          🕒 Kasuta hilisemat muudatust
         </button>
       )}
 
       {lateChangeActive && (matchMinute ?? 999) <= 45 && (
         <p className="mt-3 text-sm font-bold text-cyan-300">
-          🕒 Hiline muudatus aktiivne – saate muuta kuni 45&apos;
+          🕒 Hilisem muudatus aktiivne — saad muuta kuni 45&apos;
         </p>
       )}
 
