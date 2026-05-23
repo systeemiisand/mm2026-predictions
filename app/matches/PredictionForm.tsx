@@ -17,6 +17,7 @@ export default function PredictionForm({
   matchId,
   kickoffAt,
   matchMinute,
+  initialPrediction,
 }: Props) {
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
