@@ -6,9 +6,18 @@ import { supabase } from "@/lib/supabase";
 type Props = {
   matchId: number;
   kickoffAt: string;
+  initialPower?: {
+    power_type: string;
+    match_id: number | null;
+    used_at: string | null;
+  };
 };
 
-export default function PowerButtons({ matchId, kickoffAt }: Props) {
+export default function PowerButtons({
+  matchId,
+  kickoffAt,
+  initialPower,
+}: Props) {
   const [message, setMessage] = useState("");
   const [doubleUsed, setDoubleUsed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,30 +25,14 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
   const isLocked = new Date() >= new Date(kickoffAt);
 
   useEffect(() => {
-    async function loadPower() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    if (initialPower?.used_at) {
+      setDoubleUsed(true);
 
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("powers")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("power_type", "double_points")
-        .maybeSingle();
-
-      if (data?.used_at) {
-        setDoubleUsed(true);
-        if (data.match_id === matchId) {
-          setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
-        }
+      if (initialPower.match_id === matchId) {
+        setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
       }
     }
-
-    loadPower();
-  }, [matchId]);
+  }, [matchId, initialPower]);
 
   async function useDoublePoints() {
     setMessage("");
@@ -61,20 +54,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
       return;
     }
 
-    const { data: existing, error: loadError } = await supabase
-      .from("powers")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("power_type", "double_points")
-      .maybeSingle();
-
-    if (loadError) {
-      setMessage(loadError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (existing?.used_at) {
+    if (initialPower?.used_at) {
       setMessage("Topeltpunktid on juba kasutatud.");
       setDoubleUsed(true);
       setLoading(false);
@@ -97,7 +77,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
     }
 
     setDoubleUsed(true);
-    setMessage("Sellel matšil aktiveeritud topeltpunktid ⚡");
+    setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
     setLoading(false);
   }
 

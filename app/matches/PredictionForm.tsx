@@ -7,11 +7,23 @@ type Props = {
   matchId: number;
   kickoffAt: string;
   matchMinute?: number | null;
+  initialPrediction?: {
+    predicted_home_score: number;
+    predicted_away_score: number;
+  };
+  initialLatePower?: {
+    power_type: string;
+    match_id: number | null;
+    used_at: string | null;
+  };
 };
+
 export default function PredictionForm({
   matchId,
   kickoffAt,
   matchMinute,
+  initialPrediction,
+  initialLatePower,
 }: Props) {
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
@@ -26,6 +38,21 @@ export default function PredictionForm({
   const isLocked = hasStarted && !canLateChange;
 
   useEffect(() => {
+    if (initialPrediction) {
+      setHomeScore(String(initialPrediction.predicted_home_score));
+      setAwayScore(String(initialPrediction.predicted_away_score));
+      setSavedPrediction(
+        `${initialPrediction.predicted_home_score} - ${initialPrediction.predicted_away_score}`,
+      );
+    }
+
+    if (initialLatePower && !initialLatePower.used_at) {
+      setLateChangeAvailable(true);
+    }
+
+    if (initialLatePower?.match_id === matchId && initialLatePower.used_at) {
+      setLateChangeActive(true);
+    }
     async function loadPrediction() {
       const {
         data: { session },

@@ -5,6 +5,11 @@ import { supabase } from "@/lib/supabase";
 
 type Props = {
   matchId: number;
+  initialPower?: {
+    power_type: string;
+    match_id: number | null;
+    used_at: string | null;
+  };
 };
 
 type SpyPrediction = {
@@ -20,39 +25,22 @@ type SpyPrediction = {
     | null;
 };
 
-export default function SpyPower({ matchId }: Props) {
+export default function SpyPower({ matchId, initialPower }: Props) {
   const [message, setMessage] = useState("");
   const [spyUsedForThisMatch, setSpyUsedForThisMatch] = useState(false);
   const [spyAlreadyUsed, setSpyAlreadyUsed] = useState(false);
   const [predictions, setPredictions] = useState<SpyPrediction[]>([]);
 
   useEffect(() => {
-    async function loadSpy() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    if (initialPower?.used_at) {
+      setSpyAlreadyUsed(true);
 
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("powers")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("power_type", "spy")
-        .maybeSingle();
-
-      if (data?.used_at) {
-        setSpyAlreadyUsed(true);
-
-        if (data.match_id === matchId) {
-          setSpyUsedForThisMatch(true);
-          loadPredictions();
-        }
+      if (initialPower.match_id === matchId) {
+        setSpyUsedForThisMatch(true);
+        loadPredictions();
       }
     }
-
-    loadSpy();
-  }, [matchId]);
+  }, [matchId, initialPower]);
 
   async function loadPredictions() {
     const { data, error } = await supabase
@@ -88,14 +76,7 @@ export default function SpyPower({ matchId }: Props) {
       return;
     }
 
-    const { data: existing } = await supabase
-      .from("powers")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("power_type", "spy")
-      .maybeSingle();
-
-    if (existing?.used_at) {
+    if (initialPower?.used_at) {
       setSpyAlreadyUsed(true);
       setMessage("Spioon on juba kasutatud.");
       return;
@@ -157,6 +138,7 @@ export default function SpyPower({ matchId }: Props) {
                       ? (prediction.profiles[0]?.display_name ?? "Tundmatu")
                       : (prediction.profiles?.display_name ?? "Tundmatu")}
                   </span>
+
                   <b>
                     {prediction.predicted_home_score} -{" "}
                     {prediction.predicted_away_score}
