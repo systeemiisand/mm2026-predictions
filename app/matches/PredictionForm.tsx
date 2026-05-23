@@ -80,12 +80,12 @@ export default function PredictionForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Please login first.");
+      setMessage("Palun logige esmalt sisse.");
       return;
     }
 
     if (isLocked) {
-      setMessage("Prediction is locked.");
+      setMessage("Ennustus on lukustatud.");
       return;
     }
 
@@ -118,17 +118,19 @@ export default function PredictionForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Please login first.");
+      setMessage("Palun logige esmalt sisse.");
       return;
     }
 
     if (!hasStarted) {
-      setMessage("Late Change can be used only after kickoff.");
+      setMessage("Hilinenud ennustust saab kasutada ainult pärast avavilet.");
       return;
     }
 
     if ((matchMinute ?? 999) > 45) {
-      setMessage("Too late. Late Change works only until 45 minutes.");
+      setMessage(
+        "Liiga hilja. Hiline muutmine töötab ainult kuni 45 minutini.",
+      );
       return;
     }
 
@@ -148,7 +150,7 @@ export default function PredictionForm({
 
     setLateChangeAvailable(false);
     setLateChangeActive(true);
-    setMessage("Late Change activated 🕒");
+    setMessage("Hilinenud muudatus aktiveeritud 🕒");
   }
 
   return (
@@ -199,7 +201,7 @@ export default function PredictionForm({
 
       {lateChangeActive && (matchMinute ?? 999) <= 45 && (
         <p className="mt-3 text-sm font-bold text-cyan-300">
-          🕒 Late Change active — you can edit until 45&apos;
+          🕒 Hiline muudatus aktiivne – saate muuta kuni 45&apos;
         </p>
       )}
 

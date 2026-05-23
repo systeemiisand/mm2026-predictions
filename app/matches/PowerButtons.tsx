@@ -33,7 +33,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
       if (data?.used_at) {
         setDoubleUsed(true);
         if (data.match_id === matchId) {
-          setMessage("Double Points active on this match ⚡");
+          setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
         }
       }
     }
@@ -50,13 +50,13 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Please login first.");
+      setMessage("Palun logi sisse.");
       setLoading(false);
       return;
     }
 
     if (isLocked) {
-      setMessage("Too late. Double Points must be used before kickoff.");
+      setMessage("Liiga hilja. Topeltpunktid tuleb aktiveerida enne avavilet.");
       setLoading(false);
       return;
     }
@@ -75,7 +75,7 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
     }
 
     if (existing?.used_at) {
-      setMessage("Double Points already used.");
+      setMessage("Topeltpunktid on juba kasutatud.");
       setDoubleUsed(true);
       setLoading(false);
       return;
@@ -97,19 +97,21 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
     }
 
     setDoubleUsed(true);
-    setMessage("Double Points activated on this match ⚡");
+    setMessage("Sellel matšil aktiveeritud topeltpunktid ⚡");
     setLoading(false);
   }
 
   return (
     <div className="mt-4">
-      {doubleUsed && message.includes("this match") ? (
+      {doubleUsed && message.includes("aktiivsed") ? (
         <div className="rounded-2xl border border-yellow-300/40 bg-yellow-300/10 p-3 shadow-lg shadow-yellow-300/10">
           <div className="flex items-center gap-2">
             <span className="text-xl">⚡</span>
 
             <div>
-              <p className="font-black text-yellow-300">DOUBLE POINTS ACTIVE</p>
+              <p className="font-black text-yellow-300">
+                TOPELT PUNKTID AKTIIVSED
+              </p>
 
               <p className="text-xs text-yellow-100/70">
                 Selle mängu punktid duubeldatakse.
@@ -125,14 +127,14 @@ export default function PowerButtons({ matchId, kickoffAt }: Props) {
           className="rounded-xl bg-yellow-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-yellow-200 disabled:bg-slate-600 disabled:text-slate-300"
         >
           {loading
-            ? "Activating..."
+            ? "Aktiveerin..."
             : doubleUsed
-              ? "⚡ Double Used"
-              : "⚡ Toppelt punktid"}
+              ? "⚡ Kasutatud"
+              : "⚡ Topelt punktid"}
         </button>
       )}
 
-      {message && !message.includes("this match") && (
+      {message && !message.includes("aktiivsed") && (
         <p className="mt-2 text-sm text-yellow-300">{message}</p>
       )}
     </div>
