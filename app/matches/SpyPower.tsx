@@ -3,13 +3,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+type Power = {
+  power_type: string;
+  match_id: number | null;
+  used_at: string | null;
+};
+
 type Props = {
   matchId: number;
-  initialPower?: {
-    power_type: string;
-    match_id: number | null;
-    used_at: string | null;
-  };
+  initialPower?: Power;
+  onPowerUsed?: (power: Power) => void;
 };
 
 type SpyPrediction = {
@@ -25,7 +28,11 @@ type SpyPrediction = {
     | null;
 };
 
-export default function SpyPower({ matchId, initialPower }: Props) {
+export default function SpyPower({
+  matchId,
+  initialPower,
+  onPowerUsed,
+}: Props) {
   const [message, setMessage] = useState("");
   const [spyUsedForThisMatch, setSpyUsedForThisMatch] = useState(false);
   const [spyAlreadyUsed, setSpyAlreadyUsed] = useState(false);
@@ -76,25 +83,38 @@ export default function SpyPower({ matchId, initialPower }: Props) {
       return;
     }
 
-    if (initialPower?.used_at) {
+    if (initialPower?.used_at || spyAlreadyUsed) {
       setSpyAlreadyUsed(true);
       setMessage("Spioon on juba kasutatud.");
       return;
     }
 
-    const { error } = await supabase
-      .from("powers")
-      .update({
+    const usedAt = new Date().toISOString();
+
+    const { error } = await supabase.from("powers").upsert(
+      {
+        user_id: user.id,
+        power_type: "spy",
         match_id: matchId,
-        used_at: new Date().toISOString(),
-      })
-      .eq("user_id", user.id)
-      .eq("power_type", "spy");
+        used_at: usedAt,
+      },
+      {
+        onConflict: "user_id,power_type",
+      },
+    );
 
     if (error) {
       setMessage(error.message);
       return;
     }
+
+    const usedPower = {
+      power_type: "spy",
+      match_id: matchId,
+      used_at: usedAt,
+    };
+
+    onPowerUsed?.(usedPower);
 
     setSpyAlreadyUsed(true);
     setSpyUsedForThisMatch(true);

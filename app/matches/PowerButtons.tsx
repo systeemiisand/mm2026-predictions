@@ -11,12 +11,18 @@ type Props = {
     match_id: number | null;
     used_at: string | null;
   };
+  onPowerUsed?: (power: {
+    power_type: string;
+    match_id: number | null;
+    used_at: string | null;
+  }) => void;
 };
 
 export default function PowerButtons({
   matchId,
   kickoffAt,
   initialPower,
+  onPowerUsed,
 }: Props) {
   const [message, setMessage] = useState("");
   const [doubleUsed, setDoubleUsed] = useState(false);
@@ -61,20 +67,29 @@ export default function PowerButtons({
       return;
     }
 
-    const { error } = await supabase
-      .from("powers")
-      .update({
+    const { error } = await supabase.from("powers").upsert(
+      {
+        user_id: user.id,
+        power_type: "double_points",
         match_id: matchId,
         used_at: new Date().toISOString(),
-      })
-      .eq("user_id", user.id)
-      .eq("power_type", "double_points");
-
+      },
+      {
+        onConflict: "user_id,power_type",
+      },
+    );
     if (error) {
       setMessage(error.message);
       setLoading(false);
       return;
     }
+    const usedPower = {
+      power_type: "double_points",
+      match_id: matchId,
+      used_at: new Date().toISOString(),
+    };
+
+    onPowerUsed?.(usedPower);
 
     setDoubleUsed(true);
     setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
@@ -109,7 +124,9 @@ export default function PowerButtons({
           {loading
             ? "Aktiveerin..."
             : doubleUsed
-              ? "⚡ Kasutatud"
+              ? initialPower?.match_id === matchId
+                ? "⚡ Aktiivne siin"
+                : "⚡ Kasutatud"
               : "⚡ Topelt punktid"}
         </button>
       )}

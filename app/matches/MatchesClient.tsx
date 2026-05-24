@@ -195,9 +195,24 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
               matchId={match.id}
               kickoffAt={match.kickoff_at}
               initialPower={powers.double_points}
+              onPowerUsed={(power) =>
+                setPowers((current) => ({
+                  ...current,
+                  double_points: power,
+                }))
+              }
             />
 
-            <SpyPower matchId={match.id} initialPower={powers.spy} />
+            <SpyPower
+              matchId={match.id}
+              initialPower={powers.spy}
+              onPowerUsed={(power) =>
+                setPowers((current) => ({
+                  ...current,
+                  spy: power,
+                }))
+              }
+            />
           </div>
         ))}
       </div>
