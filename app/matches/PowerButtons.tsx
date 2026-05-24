@@ -3,19 +3,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+type Power = {
+  power_type: string;
+  match_id: number | null;
+  used_at: string | null;
+};
+
 type Props = {
   matchId: number;
   kickoffAt: string;
-  initialPower?: {
-    power_type: string;
-    match_id: number | null;
-    used_at: string | null;
-  };
-  onPowerUsed?: (power: {
-    power_type: string;
-    match_id: number | null;
-    used_at: string | null;
-  }) => void;
+  initialPower?: Power;
+  onPowerUsed?: (power: Power) => void;
 };
 
 export default function PowerButtons({
@@ -37,6 +35,9 @@ export default function PowerButtons({
       if (initialPower.match_id === matchId) {
         setMessage("Sellel matšil aktiivsed topeltpunktid ⚡");
       }
+    } else {
+      setDoubleUsed(false);
+      setMessage("");
     }
   }, [matchId, initialPower]);
 
@@ -60,33 +61,47 @@ export default function PowerButtons({
       return;
     }
 
-    if (initialPower?.used_at) {
+    if (initialPower?.used_at || doubleUsed) {
       setMessage("Topeltpunktid on juba kasutatud.");
       setDoubleUsed(true);
       setLoading(false);
       return;
     }
 
+    const confirmed = window.confirm(
+      "Kas oled kindel? Topeltpunktid saab kasutada ainult ühe korra ja seda ei saa tagasi võtta.",
+    );
+
+    if (!confirmed) {
+      setMessage("Topeltpunktide kasutamine tühistatud.");
+      setLoading(false);
+      return;
+    }
+
+    const usedAt = new Date().toISOString();
+
     const { error } = await supabase.from("powers").upsert(
       {
         user_id: user.id,
         power_type: "double_points",
         match_id: matchId,
-        used_at: new Date().toISOString(),
+        used_at: usedAt,
       },
       {
         onConflict: "user_id,power_type",
       },
     );
+
     if (error) {
       setMessage(error.message);
       setLoading(false);
       return;
     }
+
     const usedPower = {
       power_type: "double_points",
       match_id: matchId,
-      used_at: new Date().toISOString(),
+      used_at: usedAt,
     };
 
     onPowerUsed?.(usedPower);
@@ -98,7 +113,7 @@ export default function PowerButtons({
 
   return (
     <div className="mt-4">
-      {doubleUsed && message.includes("aktiivsed") ? (
+      {doubleUsed && initialPower?.match_id === matchId ? (
         <div className="rounded-2xl border border-yellow-300/40 bg-yellow-300/10 p-3 shadow-lg shadow-yellow-300/10">
           <div className="flex items-center gap-2">
             <span className="text-xl">⚡</span>
@@ -124,9 +139,7 @@ export default function PowerButtons({
           {loading
             ? "Aktiveerin..."
             : doubleUsed
-              ? initialPower?.match_id === matchId
-                ? "⚡ Aktiivne siin"
-                : "⚡ Kasutatud"
+              ? "⚡ Kasutatud"
               : "⚡ Topelt punktid"}
         </button>
       )}

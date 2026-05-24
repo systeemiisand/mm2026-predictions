@@ -35,8 +35,13 @@ export default function PredictionForm({
   const [lateChangeActive, setLateChangeActive] = useState(false);
 
   const hasStarted = new Date() >= new Date(kickoffAt);
-  const canLateChange =
-    hasStarted && (matchMinute ?? 999) <= 45 && lateChangeActive;
+  const estimatedMinute = Math.floor(
+    (Date.now() - new Date(kickoffAt).getTime()) / 60000,
+  );
+
+  const safeMatchMinute = matchMinute ?? estimatedMinute;
+
+  const canLateChange = hasStarted && safeMatchMinute <= 45 && lateChangeActive;
   const isLocked = hasStarted && !canLateChange;
 
   useEffect(() => {
@@ -112,7 +117,7 @@ export default function PredictionForm({
       return;
     }
 
-    if ((matchMinute ?? 999) > 45) {
+    if (safeMatchMinute > 45) {
       setMessage(
         "Liiga hilja. Hilisem muutus töötab ainult kuni 45. minutini.",
       );
@@ -193,7 +198,7 @@ export default function PredictionForm({
         </button>
       )}
 
-      {lateChangeActive && (matchMinute ?? 999) <= 45 && (
+      {lateChangeActive && safeMatchMinute <= 45 && (
         <p className="mt-3 text-sm font-bold text-cyan-300">
           🕒 Hilisem muudatus aktiivne — saad muuta kuni 45&apos;
         </p>

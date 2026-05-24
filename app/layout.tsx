@@ -45,7 +45,16 @@ export default function RootLayout({
                 Reeglid
               </a>
 
-              <LogoutButton />
+              <div className="flex items-center gap-3">
+                <a
+                  href="/login"
+                  className="rounded-xl bg-emerald-500 px-4 py-2 font-bold text-slate-950 hover:bg-emerald-400"
+                >
+                  Logi sisse
+                </a>
+
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </nav>
