@@ -3,7 +3,33 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const avatars = ["⚽", "🏆", "🔥", "🦊", "🐺", "🦁", "🐯", "🦅", "🚀", "👑"];
+const avatars = [
+  "⚽",
+  "🏆",
+  "🔥",
+  "🦊",
+  "🐺",
+  "🦁",
+  "🐯",
+  "🦅",
+  "🚀",
+  "👑",
+  "🐻",
+  "🐼",
+  "🐸",
+  "🐵",
+  "🦄",
+  "🐉",
+  "🦖",
+  "🦈",
+  "🐙",
+  "🦋",
+  "⭐",
+  "💎",
+  "⚡",
+  "🎯",
+  "🥇",
+];
 
 export default function ProfilePage() {
   const [displayName, setDisplayName] = useState("");
@@ -39,7 +65,7 @@ export default function ProfilePage() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Please login first.");
+      setMessage("Palun logi sisse.");
       return;
     }
 
@@ -50,7 +76,7 @@ export default function ProfilePage() {
     });
 
     if (error) setMessage(error.message);
-    else setMessage("Profile saved ✅");
+    else setMessage("Profiil salvestatud ✅");
   }
 
   return (
