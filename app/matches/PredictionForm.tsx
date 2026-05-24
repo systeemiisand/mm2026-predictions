@@ -16,6 +16,7 @@ type Props = {
     match_id: number | null;
     used_at: string | null;
   };
+  initialPoints?: number;
 };
 
 export default function PredictionForm({
@@ -24,6 +25,7 @@ export default function PredictionForm({
   matchMinute,
   initialPrediction,
   initialLatePower,
+  initialPoints,
 }: Props) {
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
@@ -53,57 +55,7 @@ export default function PredictionForm({
     if (initialLatePower?.match_id === matchId && initialLatePower.used_at) {
       setLateChangeActive(true);
     }
-    async function loadPrediction() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const user = session?.user;
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("predictions")
-        .select("predicted_home_score, predicted_away_score")
-        .eq("user_id", user.id)
-        .eq("match_id", matchId)
-        .maybeSingle();
-
-      if (data) {
-        setHomeScore(String(data.predicted_home_score));
-        setAwayScore(String(data.predicted_away_score));
-        setSavedPrediction(
-          `${data.predicted_home_score} - ${data.predicted_away_score}`,
-        );
-      }
-    }
-
-    async function loadLatePower() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const user = session?.user;
-      if (!user) return;
-
-      const { data: latePower } = await supabase
-        .from("powers")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("power_type", "late_change")
-        .maybeSingle();
-
-      if (latePower && !latePower.used_at) {
-        setLateChangeAvailable(true);
-      }
-
-      if (latePower?.match_id === matchId && latePower.used_at) {
-        setLateChangeActive(true);
-      }
-    }
-
-    loadPrediction();
-    loadLatePower();
-  }, [matchId]);
+  }, [matchId, initialPrediction, initialLatePower]);
 
   async function savePrediction() {
     setMessage("");
@@ -167,14 +119,17 @@ export default function PredictionForm({
       return;
     }
 
-    const { error } = await supabase
-      .from("powers")
-      .update({
+    const { error } = await supabase.from("powers").upsert(
+      {
+        user_id: user.id,
+        power_type: "late_change",
         match_id: matchId,
         used_at: new Date().toISOString(),
-      })
-      .eq("user_id", user.id)
-      .eq("power_type", "late_change");
+      },
+      {
+        onConflict: "user_id,power_type",
+      },
+    );
 
     if (error) {
       setMessage(error.message);
@@ -191,6 +146,12 @@ export default function PredictionForm({
       {savedPrediction && (
         <p className="mb-3 text-sm text-emerald-300">
           Sinu ennustus: <b>{savedPrediction}</b>
+        </p>
+      )}
+
+      {initialPoints !== undefined && (
+        <p className="mb-3 text-sm font-black text-yellow-300">
+          Selle mängu punktid: {initialPoints}
         </p>
       )}
 

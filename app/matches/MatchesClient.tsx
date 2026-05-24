@@ -20,60 +20,16 @@ type Power = {
 };
 
 const countryCodeMap: Record<string, string> = {
-  ALG: "dz",
   ARG: "ar",
-  AUS: "au",
-  AUT: "at",
-  BEL: "be",
-  BIH: "ba",
   BRA: "br",
   CAN: "ca",
-  CHI: "cl",
-  CIV: "ci",
-  CMR: "cm",
-  COL: "co",
-  CPV: "cv",
-  CRO: "hr",
-  CUW: "cw",
-  CZE: "cz",
-  DEN: "dk",
-  ECU: "ec",
-  EGY: "eg",
   ENG: "gb-eng",
   ESP: "es",
   FRA: "fr",
   GER: "de",
-  GHA: "gh",
-  HAI: "ht",
-  IRN: "ir",
-  IRQ: "iq",
-  ITA: "it",
-  JOR: "jo",
-  JPN: "jp",
-  KOR: "kr",
-  KSA: "sa",
-  MAR: "ma",
   MEX: "mx",
-  NED: "nl",
-  NGA: "ng",
-  NOR: "no",
-  NZL: "nz",
-  PAN: "pa",
-  PAR: "py",
-  POL: "pl",
   POR: "pt",
-  QAT: "qa",
-  RSA: "za",
-  SCO: "gb-sct",
-  SEN: "sn",
-  SRB: "rs",
-  SUI: "ch",
-  SWE: "se",
-  TUN: "tn",
-  TUR: "tr",
-  URU: "uy",
   USA: "us",
-  WAL: "gb-wls",
 };
 
 function getFlagUrl(flag?: string | null, teamCode?: string | null) {
@@ -90,7 +46,11 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
   const [predictions, setPredictions] = useState<Record<number, Prediction>>(
     {},
   );
+
   const [powers, setPowers] = useState<Record<string, Power | undefined>>({});
+
+  const [points, setPoints] = useState<Record<number, number>>({});
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -106,21 +66,29 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
         return;
       }
 
-      const [{ data: predictionRows }, { data: powerRows }] = await Promise.all(
-        [
-          supabase
-            .from("predictions")
-            .select("match_id, predicted_home_score, predicted_away_score")
-            .eq("user_id", user.id),
+      const [
+        { data: predictionRows },
+        { data: powerRows },
+        { data: pointRows },
+      ] = await Promise.all([
+        supabase
+          .from("predictions")
+          .select("match_id, predicted_home_score, predicted_away_score")
+          .eq("user_id", user.id),
 
-          supabase
-            .from("powers")
-            .select("power_type, match_id, used_at")
-            .eq("user_id", user.id),
-        ],
-      );
+        supabase
+          .from("powers")
+          .select("power_type, match_id, used_at")
+          .eq("user_id", user.id),
+
+        supabase
+          .from("prediction_points")
+          .select("match_id, points")
+          .eq("user_id", user.id),
+      ]);
 
       const predictionMap: Record<number, Prediction> = {};
+
       predictionRows?.forEach((prediction: any) => {
         predictionMap[prediction.match_id] = {
           predicted_home_score: prediction.predicted_home_score,
@@ -129,12 +97,20 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
       });
 
       const powerMap: Record<string, Power> = {};
+
       powerRows?.forEach((power: Power) => {
         powerMap[power.power_type] = power;
       });
 
+      const pointMap: Record<number, number> = {};
+
+      pointRows?.forEach((row: any) => {
+        pointMap[row.match_id] = row.points;
+      });
+
       setPredictions(predictionMap);
       setPowers(powerMap);
+      setPoints(pointMap);
       setLoading(false);
     }
 
@@ -180,6 +156,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
                 )}
 
                 <div className="font-black">{match.home_team}</div>
+
                 <div className="text-xs text-slate-400">
                   {match.home_team_code}
                 </div>
@@ -188,11 +165,11 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
               <div className="text-center">
                 {match.home_score != null && match.away_score != null ? (
                   <>
-                    <div className="text-3xl font-black text-white">
+                    <div className="text-3xl font-black ext-slate-950">
                       {match.home_score} - {match.away_score}
                     </div>
 
-                    <div className="mt-1 text-xs font-bold text-emerald-300">
+                    <div className="mt-1 text-xs font-bold text-emerald-700">
                       Tulemus
                     </div>
 
@@ -221,6 +198,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
                 )}
 
                 <div className="font-black">{match.away_team}</div>
+
                 <div className="text-xs text-slate-950">
                   {match.away_team_code}
                 </div>
@@ -233,6 +211,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
               matchMinute={match.match_minute}
               initialPrediction={predictions[match.id]}
               initialLatePower={powers.late_change}
+              initialPoints={points[match.id]}
             />
 
             <PowerButtons
