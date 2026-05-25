@@ -186,18 +186,27 @@ export default function TournamentPage() {
 
   return (
     <div className="mx-auto max-w-xl px-6 py-10">
-      {/* Page title */}
-      <h1 className="mb-6 text-4xl font-black">Turniiri boonus</h1>
+      {/* Page hero/header */}
+      <section className="mb-10 rounded-3xl bg-gradient-to-br from-emerald-500 to-cyan-600 p-8 shadow-2xl">
+        <p className="text-sm font-semibold uppercase tracking-widest text-white/80">
+          Jalgpalli MM 2026 ennustus liiga
+        </p>
+
+        <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+          MM2026 Boonus
+        </h1>
+        {/* Live countdown until tournament start */}
+        <TournamentCountdown />
+
+        <p className="mt-3 max-w-2xl text-white/80">
+          Ennusta maailmameister ja finalist enne turniiri algust ning teeni
+          lisapunkte.
+        </p>
+      </section>
 
       {/* Main prediction card */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
         {/* Short explanation */}
-        <p className="mb-6 text-slate-300">
-          Ennusta MM 2026 võitja ja finalist enne turniiri algust.
-        </p>
-
-        {/* Live countdown until tournament start */}
-        <TournamentCountdown />
 
         {/* Winner selection */}
         <label className="text-sm font-bold text-cyan-300">Võitja +10p</label>

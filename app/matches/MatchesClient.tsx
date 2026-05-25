@@ -95,6 +95,8 @@ const countryCodeMap: Record<string, string> = {
   TUR: "tr",
   URU: "uy",
   USA: "us",
+  UZB: "uz",
+  COD: "cd",
 };
 
 /**
