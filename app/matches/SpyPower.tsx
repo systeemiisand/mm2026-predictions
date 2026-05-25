@@ -166,10 +166,19 @@ export default function SpyPower({
       return;
     }
 
-    // Save activation time
-    const usedAt = new Date().toISOString();
+    // ADD HERE
+    const confirmed = window.confirm(
+      "Kas oled kindel? Spiooni saab kasutada ainult ühe korra ja seda ei saa tagasi võtta.",
+    );
 
-    /**
+    if (!confirmed) {
+      setMessage("Spiooni kasutamine tühistatud.");
+      setSpyAlreadyUsed(false);
+      return;
+    }
+
+    // Save activation time
+    const usedAt = new Date().toISOString(); /**
      * Save spy usage in Supabase.
      *
      * onConflict makes sure each user can only use
