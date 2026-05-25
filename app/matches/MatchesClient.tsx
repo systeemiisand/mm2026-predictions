@@ -266,7 +266,13 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
 
               {/* Match kickoff time */}
               <span className="text-xs text-slate-950">
-                {new Date(match.kickoff_at).toLocaleString()}
+                {new Date(match.kickoff_at).toLocaleString("et-EE", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })}
               </span>
             </div>
 
