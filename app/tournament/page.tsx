@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 // Supabase client for authentication and database actions
 import { supabase } from "@/lib/supabase";
 
+// Reusable countdown component
+import TournamentCountdown from "@/components/TournamentCountdown";
+
 /**
  * List of teams available for tournament bonus predictions.
  */
@@ -84,24 +87,14 @@ export default function TournamentPage() {
 
   /**
    * Locks tournament predictions after tournament start date.
-   *
-   * Current lock date:
-   * 2026-06-11 00:00:00 UTC
    */
   const tournamentStarted = new Date() >= new Date("2026-06-11T00:00:00Z");
 
   /**
    * Loads user's saved tournament prediction from Supabase.
-   *
-   * Runs once when page loads.
    */
   useEffect(() => {
     async function loadPrediction() {
-      /**
-       * Get current authenticated session.
-       *
-       * getSession is used here to access the logged-in user.
-       */
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -113,10 +106,6 @@ export default function TournamentPage() {
 
       /**
        * Load existing tournament prediction for this user.
-       *
-       * maybeSingle returns either:
-       * - one row
-       * - null if no prediction exists
        */
       const { data } = await supabase
         .from("tournament_predictions")
@@ -131,18 +120,11 @@ export default function TournamentPage() {
       }
     }
 
-    // Execute async loading function
     loadPrediction();
   }, []);
 
   /**
    * Saves or updates user's tournament bonus prediction.
-   *
-   * Flow:
-   * 1. Check logged-in user
-   * 2. Check if tournament prediction is locked
-   * 3. Validate winner and finalist
-   * 4. Save prediction to Supabase
    */
   async function savePrediction() {
     // Clear old message
@@ -181,9 +163,6 @@ export default function TournamentPage() {
 
     /**
      * Insert or update tournament prediction.
-     *
-     * onConflict "user_id" ensures each user has only
-     * one tournament prediction row.
      */
     const { error } = await supabase.from("tournament_predictions").upsert(
       {
@@ -217,8 +196,12 @@ export default function TournamentPage() {
           Ennusta MM 2026 võitja ja finalist enne turniiri algust.
         </p>
 
+        {/* Live countdown until tournament start */}
+        <TournamentCountdown />
+
         {/* Winner selection */}
         <label className="text-sm font-bold text-cyan-300">Võitja +10p</label>
+
         <select
           value={winner}
           disabled={tournamentStarted}
@@ -237,6 +220,7 @@ export default function TournamentPage() {
 
         {/* Runner-up/finalist selection */}
         <label className="text-sm font-bold text-cyan-300">Finalist +7p</label>
+
         <select
           value={runnerUp}
           disabled={tournamentStarted}

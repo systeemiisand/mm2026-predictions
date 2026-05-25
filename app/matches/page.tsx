@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import AutoRefresh from "./AutoRefresh";
 import MatchesClient from "./MatchesClient";
+import TournamentCountdown from "@/components/TournamentCountdown";
 
 /**
  * Matches page
@@ -41,6 +42,7 @@ export default async function MatchesPage() {
         <p className="mt-3 max-w-2xl text-white/80">
           Ennusta tulemusi enne avavilet, kogu punkte ja tõuse edetabelis.
         </p>
+        <TournamentCountdown />
       </section>
 
       {/* Client component renders match cards and user-specific prediction data */}
