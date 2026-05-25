@@ -1,18 +1,35 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+/**
+ * Admin API route for importing World Cup 2026 fixtures
+ *
+ * Used by:
+ * - Admin dashboard "Import Fixtures" button
+ *
+ * This route:
+ * 1. checks admin secret
+ * 2. calls WC2026 API
+ * 3. logs API usage
+ * 4. converts API data into our matches table shape
+ * 5. upserts matches into Supabase
+ */
 export async function POST(request: Request) {
+  // Read secret from URL query: /api/import-matches?secret=...
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
 
+  // Protect this route from public use
   if (secret !== process.env.IMPORT_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Required environment variables
   const apiKey = process.env.WC2026_API_KEY;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  // Stop if server configuration is missing
   if (!apiKey || !supabaseUrl || !supabaseKey) {
     return NextResponse.json(
       { error: "Missing environment variables" },
@@ -20,19 +37,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // Service role client is used because this server route must write to DB
   const supabase = createClient(supabaseUrl, supabaseKey);
 
+  // Fetch all matches from external WC2026 API
   const response = await fetch("https://api.wc2026api.com/matches", {
     headers: {
       Authorization: `Bearer ${apiKey}`,
     },
   });
 
+  // Log every external API call so we can monitor free-tier usage
   await supabase.from("api_usage_logs").insert({
     endpoint: "/matches",
     status: response.status,
   });
 
+  // Stop if external API failed
   if (!response.ok) {
     return NextResponse.json(
       {
@@ -43,9 +64,13 @@ export async function POST(request: Request) {
     );
   }
 
+  // API can return either array or single object, normalize to array
   const matches = await response.json();
   const list = Array.isArray(matches) ? matches : [matches];
 
+  /**
+   * Convert external API match format into our Supabase `matches` table format
+   */
   const rows = list.map((match: any) => ({
     api_match_id: match.id,
     match_number: match.match_number,
@@ -80,6 +105,7 @@ export async function POST(request: Request) {
 
     is_sandbox: match._sandbox ?? false,
 
+    // Calculate penalty winner from penalty scores
     penalty_winner:
       typeof match.home_pen === "number" && typeof match.away_pen === "number"
         ? match.home_pen > match.away_pen
@@ -89,9 +115,11 @@ export async function POST(request: Request) {
             : null
         : null,
 
+    // Current app prediction mode
     prediction_mode: "score",
   }));
 
+  // Insert new matches or update existing ones using API match id
   const { error } = await supabase
     .from("matches")
     .upsert(rows, { onConflict: "api_match_id" });
@@ -100,6 +128,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Response shown in admin dashboard
   return NextResponse.json({
     success: true,
     imported: rows.length,

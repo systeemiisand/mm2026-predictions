@@ -2,7 +2,22 @@ import { supabase } from "@/lib/supabase";
 import AutoRefresh from "./AutoRefresh";
 import MatchesClient from "./MatchesClient";
 
+/**
+ * Matches page
+ *
+ * Server component that loads all matches from Supabase.
+ *
+ * User-specific data like:
+ * - predictions
+ * - powers
+ * - earned points
+ *
+ * is loaded inside MatchesClient on the client side.
+ */
 export default async function MatchesPage() {
+  /**
+   * Load all tournament matches ordered by kickoff time.
+   */
   const { data: matches } = await supabase
     .from("matches")
     .select("*")
@@ -10,8 +25,10 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+      {/* Refreshes server data periodically for updated scores/status */}
       <AutoRefresh />
 
+      {/* Page hero/header */}
       <section className="mb-10 rounded-3xl bg-gradient-to-br from-emerald-500 to-cyan-600 p-8 shadow-2xl">
         <p className="text-sm font-semibold uppercase tracking-widest text-white/80">
           Jalgpalli MM 2026 ennustus liiga
@@ -26,6 +43,7 @@ export default async function MatchesPage() {
         </p>
       </section>
 
+      {/* Client component renders match cards and user-specific prediction data */}
       <MatchesClient matches={matches ?? []} />
     </div>
   );
