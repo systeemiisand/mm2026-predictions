@@ -1,11 +1,7 @@
 {
   "crons": [
     {
-      // Cron job endpoint that Vercel will call automatically
       "path": "/api/cron/sync-matches",
-
-      // Cron schedule in UNIX cron format
-      // "0 9 * * *" = every day at 09:00 UTC
       "schedule": "0 9 * * *"
     }
   ]
