@@ -16,6 +16,8 @@ type Props = {
   // Kickoff datetime used to lock predictions after match starts
   kickoffAt: string;
 
+  matchNumber?: number | null;
+
   // Current match minute, if available from match data
   matchMinute?: number | null;
 
@@ -50,6 +52,7 @@ export default function PredictionForm({
   matchId,
   kickoffAt,
   matchMinute,
+  matchNumber,
   initialPrediction,
   initialLatePower,
   initialPoints,
@@ -318,8 +321,9 @@ export default function PredictionForm({
           Kinnita
         </button>
 
-        {/* Penalty winner selection appears only when predicted score is a draw */}
-        {homeScore !== "" &&
+        {/* Penalty winner selection only for knockout matches (73+) and draw predictions */}
+        {(matchNumber ?? 0) >= 73 &&
+          homeScore !== "" &&
           awayScore !== "" &&
           Number(homeScore) === Number(awayScore) && (
             <div className="mt-3 w-full rounded-2xl bg-purple-300/10 p-3">

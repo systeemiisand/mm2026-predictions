@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
  * - user display name
  * - rankings data
  */
+export const dynamic = "force-dynamic";
 export default async function LeaderboardPage() {
   /**
    * Load leaderboard data ordered by highest points first

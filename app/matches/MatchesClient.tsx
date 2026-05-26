@@ -355,6 +355,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
               matchId={match.id}
               kickoffAt={match.kickoff_at}
               matchMinute={match.match_minute}
+              matchNumber={match.match_number}
               initialPrediction={predictions[match.id]}
               initialLatePower={powers.late_change}
               initialPoints={points[match.id]}
