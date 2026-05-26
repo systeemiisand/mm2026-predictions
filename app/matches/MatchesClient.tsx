@@ -189,7 +189,9 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
       ] = await Promise.all([
         supabase
           .from("predictions")
-          .select("match_id, predicted_home_score, predicted_away_score")
+          .select(
+            "match_id, predicted_home_score, predicted_away_score, predicted_penalty_winner",
+          )
           .eq("user_id", user.id),
 
         supabase

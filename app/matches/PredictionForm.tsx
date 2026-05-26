@@ -23,8 +23,8 @@ type Props = {
   initialPrediction?: {
     predicted_home_score: number;
     predicted_away_score: number;
+    predicted_penalty_winner?: "home" | "away" | null;
   };
-
   // User's late-change power status
   initialLatePower?: {
     power_type: string;
@@ -89,6 +89,8 @@ export default function PredictionForm({
   // Prediction form is locked after kickoff unless late-change is active
   const isLocked = hasStarted && !canLateChange;
 
+  const [penaltyWinner, setPenaltyWinner] = useState<"home" | "away" | "">("");
+
   /**
    * Load initial prediction and late-change state into local component state.
    *
@@ -102,6 +104,7 @@ export default function PredictionForm({
     if (initialPrediction) {
       setHomeScore(String(initialPrediction.predicted_home_score));
       setAwayScore(String(initialPrediction.predicted_away_score));
+      setPenaltyWinner(initialPrediction.predicted_penalty_winner ?? "");
 
       setSavedPrediction(
         `${initialPrediction.predicted_home_score} - ${initialPrediction.predicted_away_score}`,
@@ -161,6 +164,12 @@ export default function PredictionForm({
         match_id: matchId,
         predicted_home_score: Number(homeScore),
         predicted_away_score: Number(awayScore),
+
+        // Save penalty winner only when predicted score is draw
+        predicted_penalty_winner:
+          Number(homeScore) === Number(awayScore)
+            ? penaltyWinner || null
+            : null,
       },
       {
         onConflict: "user_id,match_id",
@@ -273,7 +282,13 @@ export default function PredictionForm({
           className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none"
           value={homeScore}
           disabled={isLocked}
-          onChange={(e) => setHomeScore(e.target.value)}
+          onChange={(e) => {
+            setHomeScore(e.target.value);
+
+            if (Number(e.target.value) !== Number(awayScore)) {
+              setPenaltyWinner("");
+            }
+          }}
         />
 
         {/* Score separator */}
@@ -285,7 +300,13 @@ export default function PredictionForm({
           className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none"
           value={awayScore}
           disabled={isLocked}
-          onChange={(e) => setAwayScore(e.target.value)}
+          onChange={(e) => {
+            setAwayScore(e.target.value);
+
+            if (Number(homeScore) !== Number(e.target.value)) {
+              setPenaltyWinner("");
+            }
+          }}
         />
 
         {/* Save prediction button */}
@@ -296,6 +317,51 @@ export default function PredictionForm({
         >
           Kinnita
         </button>
+
+        {/* Penalty winner selection appears only when predicted score is a draw */}
+        {homeScore !== "" &&
+          awayScore !== "" &&
+          Number(homeScore) === Number(awayScore) && (
+            <div className="mt-3 w-full rounded-2xl bg-purple-300/10 p-3">
+              <p className="mb-2 text-sm font-bold text-purple-300">
+                Kui mäng läheb penaltitele, kes võidab?
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={isLocked}
+                  onClick={() => setPenaltyWinner("home")}
+                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition ${
+                    penaltyWinner === "home"
+                      ? "border-purple-300 bg-purple-300 text-slate-950 shadow-lg shadow-purple-300/30"
+                      : "border-purple-300/30 bg-slate-800 text-purple-200 hover:border-purple-300 hover:bg-slate-700"
+                  }`}
+                >
+                  🏠 Kodutiim
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isLocked}
+                  onClick={() => setPenaltyWinner("away")}
+                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition ${
+                    penaltyWinner === "away"
+                      ? "border-purple-300 bg-purple-300 text-slate-950 shadow-lg shadow-purple-300/30"
+                      : "border-purple-300/30 bg-slate-800 text-purple-200 hover:border-purple-300 hover:bg-slate-700"
+                  }`}
+                >
+                  ✈️ Võõrsil
+                </button>
+              </div>
+              {penaltyWinner && (
+                <p className="mt-2 text-xs font-bold text-purple-300">
+                  Valitud penaltite võitja:{" "}
+                  {penaltyWinner === "home" ? "Kodutiim" : "Võõrsil"}
+                </p>
+              )}
+            </div>
+          )}
       </div>
 
       {/* Button for activating late-change power */}
