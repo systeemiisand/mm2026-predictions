@@ -81,7 +81,7 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage("Kontrolli oma emaili konto kinnitamiseks.");
+    //setMessage("Kontrolli oma emaili konto kinnitamiseks.");
   }
 
   /**

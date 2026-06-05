@@ -2,27 +2,24 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * TournamentCountdown
- *
- * Shows live countdown until tournament start.
- * Used on matches page and tournament bonus page.
- */
 export default function TournamentCountdown() {
-  // First match / tournament start time in Estonia time.
-  // 2026 World Cup starts June 11, 2026.
   const tournamentStart = new Date("2026-06-11T19:00:00+03:00").getTime();
 
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    // Update countdown every second.
+    setNow(Date.now());
+
     const interval = setInterval(() => {
       setNow(Date.now());
     }, 1000);
 
     return () => clearInterval(interval);
   }, []);
+
+  if (now === null) {
+    return null;
+  }
 
   const diff = tournamentStart - now;
 
