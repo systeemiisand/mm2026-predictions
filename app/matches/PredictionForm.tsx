@@ -207,7 +207,7 @@ export default function PredictionForm({
   return (
     <div className="mt-5 rounded-2xl bg-white/5 p-4">
       {savedPrediction && (
-        <p className="mb-3 text-sm text-emerald-300">
+        <p className="mb-3 text-sm text-slate-900">
           Sinu ennustus: <b>{savedPrediction}</b>
         </p>
       )}
@@ -272,7 +272,7 @@ export default function PredictionForm({
           awayScore !== "" &&
           Number(homeScore) === Number(awayScore) && (
             <div className="mt-3 w-full rounded-2xl bg-purple-300/10 p-3">
-              <p className="mb-2 text-sm font-bold text-purple-300">
+              <p className="mb-2 text-sm font-bold text-late-900">
                 Kui mäng läheb penaltitele, kes võidab?
               </p>
 
@@ -318,7 +318,7 @@ export default function PredictionForm({
         <button
           type="button"
           onClick={useLateChange}
-          className="mt-3 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-cyan-200"
+          className="nline-flex h-10 items-center justify-center rounded-xl bg-blue-300 px-4 text-sm font-black text-slate-950 hover:bg-purple-200"
         >
           🕒 Kasuta hilisemat muudatust
         </button>
@@ -330,7 +330,7 @@ export default function PredictionForm({
         </p>
       )}
 
-      {message && <p className="mt-2 text-sm text-slate-200">{message}</p>}
+      {message && <p className="mt-2 text-sm text-black">{message}</p>}
     </div>
   );
 }

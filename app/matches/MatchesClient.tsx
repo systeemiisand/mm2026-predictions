@@ -97,6 +97,7 @@ const countryCodeMap: Record<string, string> = {
   USA: "us",
   UZB: "uz",
   COD: "cd",
+  CIV: "ci",
 };
 
 /**

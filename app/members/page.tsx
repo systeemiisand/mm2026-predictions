@@ -97,7 +97,7 @@ export default function MembersPage() {
             {/* Card header */}
             <div className="flex items-center justify-between">
               {/* Member position/index */}
-              <div className="text-sm font-bold text-cyan-300">
+              <div className="text-sm font-bold text-blue-900">
                 Ennustaja {index + 1}
               </div>
 
