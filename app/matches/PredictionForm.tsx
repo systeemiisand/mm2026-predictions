@@ -316,7 +316,7 @@ export default function PredictionForm({
         <button
           type="button"
           onClick={useLateChange}
-          className="nline-flex h-10 items-center justify-center rounded-xl bg-blue-300 px-4 text-sm font-black text-slate-950 hover:bg-purple-200"
+          className="inline-flex h-10 items-center justify-center rounded-xl bg-blue-300 px-4 text-sm font-black text-slate-950 hover:bg-purple-200"
         >
           🕒 Kasuta hilisemat muudatust
         </button>
