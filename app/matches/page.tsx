@@ -3,6 +3,9 @@ import AutoRefresh from "./AutoRefresh";
 import MatchesClient from "./MatchesClient";
 import TournamentCountdown from "@/components/TournamentCountdown";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * Matches page
  *
