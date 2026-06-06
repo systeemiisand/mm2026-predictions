@@ -168,17 +168,15 @@ export default function PowerButtons({
      * onConflict:
      * Ensures one unique power per user + power type.
      */
-    const { error } = await supabase.from("powers").upsert(
-      {
-        user_id: user.id,
-        power_type: "double_points",
+    const { error } = await supabase
+      .from("powers")
+      .update({
         match_id: matchId,
         used_at: usedAt,
-      },
-      {
-        onConflict: "user_id,power_type",
-      },
-    );
+      })
+      .eq("user_id", user.id)
+      .eq("power_type", "double_points")
+      .is("used_at", null);
 
     // Handle database error
     if (error) {

@@ -178,24 +178,29 @@ export default function SpyPower({
     }
 
     // Save activation time
-    const usedAt = new Date().toISOString(); /**
-     * Save spy usage in Supabase.
-     *
-     * onConflict makes sure each user can only use
-     * one spy power.
-     */
-    const { error } = await supabase.from("powers").upsert(
-      {
-        user_id: user.id,
-        power_type: "spy",
+    const usedAt = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from("powers")
+      .update({
         match_id: matchId,
         used_at: usedAt,
-      },
-      {
-        onConflict: "user_id,power_type",
-      },
-    );
+      })
+      .eq("user_id", user.id)
+      .eq("power_type", "spy")
+      .is("used_at", null)
+      .select();
 
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      setMessage("Spiooni pole saadaval või see on juba kasutatud.");
+      setSpyAlreadyUsed(true);
+      return;
+    }
     // Show database error if activation fails
     if (error) {
       setMessage(error.message);

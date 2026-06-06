@@ -1,53 +1,30 @@
 "use client";
 
-// React hooks for managing state and syncing initial data
 import { useEffect, useState } from "react";
 
-// Supabase client for authentication and database actions
 import { supabase } from "@/lib/supabase";
 
-/**
- * Props received by the PredictionForm component.
- */
 type Props = {
-  // Current match ID
   matchId: number;
-
-  // Kickoff datetime used to lock predictions after match starts
   kickoffAt: string;
-
   matchNumber?: number | null;
-
-  // Current match minute, if available from match data
   matchMinute?: number | null;
 
-  // Existing prediction loaded from database
   initialPrediction?: {
     predicted_home_score: number;
     predicted_away_score: number;
     predicted_penalty_winner?: "home" | "away" | null;
   };
-  // User's late-change power status
+
   initialLatePower?: {
     power_type: string;
     match_id: number | null;
     used_at: string | null;
   };
 
-  // Points earned for this match, if already calculated
   initialPoints?: number;
 };
 
-/**
- * PredictionForm Component
- *
- * Handles:
- * - Showing and editing score predictions
- * - Saving predictions to Supabase
- * - Locking predictions after kickoff
- * - Allowing one late change power until 45th minute
- * - Displaying saved prediction and points
- */
 export default function PredictionForm({
   matchId,
   kickoffAt,
@@ -57,118 +34,96 @@ export default function PredictionForm({
   initialLatePower,
   initialPoints,
 }: Props) {
-  // Home team predicted score input value
   const [homeScore, setHomeScore] = useState("");
-
-  // Away team predicted score input value
   const [awayScore, setAwayScore] = useState("");
-
-  // Status/error message shown to user
   const [message, setMessage] = useState("");
-
-  // Text version of saved prediction shown above form
   const [savedPrediction, setSavedPrediction] = useState("");
-
-  // Whether user still has the late-change power available
   const [lateChangeAvailable, setLateChangeAvailable] = useState(false);
-
-  // Whether late-change power is active for this match
   const [lateChangeActive, setLateChangeActive] = useState(false);
+  const [penaltyWinner, setPenaltyWinner] = useState<"home" | "away" | "">("");
 
-  // Match is considered started once current time is past kickoff
   const hasStarted = new Date() >= new Date(kickoffAt);
 
-  // Fallback estimated match minute based on kickoff time
   const estimatedMinute = Math.floor(
     (Date.now() - new Date(kickoffAt).getTime()) / 60000,
   );
 
-  // Use real match minute if available, otherwise fallback to estimated minute
   const safeMatchMinute = matchMinute ?? estimatedMinute;
 
-  // Late changes are only allowed after kickoff, until minute 45, and only when power is active
   const canLateChange = hasStarted && safeMatchMinute <= 45 && lateChangeActive;
 
-  // Prediction form is locked after kickoff unless late-change is active
   const isLocked = hasStarted && !canLateChange;
 
-  const [penaltyWinner, setPenaltyWinner] = useState<"home" | "away" | "">("");
-
-  /**
-   * Load initial prediction and late-change state into local component state.
-   *
-   * Runs when:
-   * - match changes
-   * - initial prediction changes
-   * - initial late power changes
-   */
   useEffect(() => {
-    // Pre-fill inputs if user already has a saved prediction
     if (initialPrediction) {
       setHomeScore(String(initialPrediction.predicted_home_score));
       setAwayScore(String(initialPrediction.predicted_away_score));
       setPenaltyWinner(initialPrediction.predicted_penalty_winner ?? "");
-
       setSavedPrediction(
         `${initialPrediction.predicted_home_score} - ${initialPrediction.predicted_away_score}`,
       );
+    } else {
+      setHomeScore("");
+      setAwayScore("");
+      setPenaltyWinner("");
+      setSavedPrediction("");
     }
 
-    // If late-change power exists but has not been used, show the activation button
     if (initialLatePower && !initialLatePower.used_at) {
       setLateChangeAvailable(true);
+    } else {
+      setLateChangeAvailable(false);
     }
 
-    // If late-change power was used on this match, enable late editing
     if (initialLatePower?.match_id === matchId && initialLatePower.used_at) {
       setLateChangeActive(true);
+    } else {
+      setLateChangeActive(false);
     }
   }, [matchId, initialPrediction, initialLatePower]);
 
-  /**
-   * Saves or updates user's prediction in Supabase.
-   *
-   * Flow:
-   * 1. Check logged-in user
-   * 2. Check if prediction is locked
-   * 3. Upsert prediction into database
-   * 4. Update local saved prediction UI
-   */
   async function savePrediction() {
-    // Clear old messages
     setMessage("");
 
-    // Get currently authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // User must be logged in to save prediction
     if (!user) {
       setMessage("Palun logi sisse.");
       return;
     }
 
-    // Prevent saving if prediction is locked
     if (isLocked) {
-      setMessage("Ennustus on lukus.");
+      setMessage("LUKUS! Ennustust ei saa pärast mängu algust muuta.");
       return;
     }
 
-    /**
-     * Insert or update prediction.
-     *
-     * onConflict makes sure each user can only have
-     * one prediction per match.
-     */
+    if (homeScore === "" || awayScore === "") {
+      setMessage("Palun sisesta mõlema tiimi skoor.");
+      return;
+    }
+
+    if (Number(homeScore) < 0 || Number(awayScore) < 0) {
+      setMessage("Skoor ei saa olla negatiivne.");
+      return;
+    }
+
+    if (
+      (matchNumber ?? 0) >= 73 &&
+      Number(homeScore) === Number(awayScore) &&
+      !penaltyWinner
+    ) {
+      setMessage("Palun vali penaltite võitja.");
+      return;
+    }
+
     const { error } = await supabase.from("predictions").upsert(
       {
         user_id: user.id,
         match_id: matchId,
         predicted_home_score: Number(homeScore),
         predicted_away_score: Number(awayScore),
-
-        // Save penalty winner only when predicted score is draw
         predicted_penalty_winner:
           Number(homeScore) === Number(awayScore)
             ? penaltyWinner || null
@@ -179,47 +134,36 @@ export default function PredictionForm({
       },
     );
 
-    // Show database error if save fails
     if (error) {
-      setMessage(error.message);
+      if (error.message.includes("row-level security")) {
+        setMessage("LUKUS! Ennustust ei saa pärast mängu algust muuta.");
+      } else {
+        setMessage(error.message);
+      }
       return;
     }
 
-    // Update local saved prediction display
     setSavedPrediction(`${homeScore} - ${awayScore}`);
-
-    // Success message
     setMessage("Sinu ennustus salvestatud ✅");
   }
 
-  /**
-   * Activates late-change power for this match.
-   *
-   * This allows the user to edit prediction after kickoff,
-   * but only until the 45th minute.
-   */
   async function useLateChange() {
-    // Clear old messages
     setMessage("");
 
-    // Get authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // User must be logged in
     if (!user) {
       setMessage("Palun logi sisse.");
       return;
     }
 
-    // Late-change power can only be activated after kickoff
     if (!hasStarted) {
       setMessage("Hilisemat muutust saab kasutada ainult pärast avavilet.");
       return;
     }
 
-    // Late-change power expires after minute 45
     if (safeMatchMinute > 45) {
       setMessage(
         "Liiga hilja. Hilisem muutus töötab ainult kuni 45. minutini.",
@@ -227,62 +171,64 @@ export default function PredictionForm({
       return;
     }
 
-    /**
-     * Save late-change usage to Supabase.
-     *
-     * onConflict makes sure each user can only use
-     * one late_change power.
-     */
-    const { error } = await supabase.from("powers").upsert(
-      {
-        user_id: user.id,
-        power_type: "late_change",
-        match_id: matchId,
-        used_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id,power_type",
-      },
-    );
+    const usedAt = new Date().toISOString();
 
-    // Show database error if activation fails
+    const { data, error } = await supabase
+      .from("powers")
+      .update({
+        match_id: matchId,
+        used_at: usedAt,
+      })
+      .eq("user_id", user.id)
+      .eq("power_type", "late_change")
+      .is("used_at", null)
+      .select();
+
     if (error) {
-      setMessage(error.message);
+      if (error.message.includes("row-level security")) {
+        setMessage("Hilisemat muutust ei saa kasutada.");
+      } else {
+        setMessage(error.message);
+      }
       return;
     }
 
-    // Hide activation button
+    if (!data || data.length === 0) {
+      setMessage("Hilisem muutus pole saadaval või on juba kasutatud.");
+      setLateChangeAvailable(false);
+      return;
+    }
+
     setLateChangeAvailable(false);
-
-    // Unlock prediction editing for this match
     setLateChangeActive(true);
-
-    // Success message
     setMessage("Hilisem muutus aktiveeritud 🕒");
   }
 
   return (
     <div className="mt-5 rounded-2xl bg-white/5 p-4">
-      {/* Show saved prediction if available */}
       {savedPrediction && (
         <p className="mb-3 text-sm text-emerald-300">
           Sinu ennustus: <b>{savedPrediction}</b>
         </p>
       )}
 
-      {/* Show earned points if points have been calculated */}
       {initialPoints !== undefined && (
         <p className="mb-3 text-sm font-black text-yellow-300">
           Selle mängu punktid: {initialPoints}
         </p>
       )}
 
-      {/* Score input row */}
+      {isLocked && (
+        <div className="mb-3 rounded-xl border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm font-bold text-red-300">
+          🔒 LUKUS — ennustust ei saa enam muuta.
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
-        {/* Home score input */}
         <input
           type="number"
-          className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none"
+          min="0"
+          className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none disabled:bg-slate-700 disabled:text-slate-400"
           value={homeScore}
           disabled={isLocked}
           onChange={(e) => {
@@ -294,13 +240,12 @@ export default function PredictionForm({
           }}
         />
 
-        {/* Score separator */}
         <span className="font-bold text-slate-400">-</span>
 
-        {/* Away score input */}
         <input
           type="number"
-          className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none"
+          min="0"
+          className="w-16 rounded-2xl bg-slate-100 p-3 text-center text-xl font-black text-slate-900 shadow-lg focus:outline-none disabled:bg-slate-700 disabled:text-slate-400"
           value={awayScore}
           disabled={isLocked}
           onChange={(e) => {
@@ -312,16 +257,14 @@ export default function PredictionForm({
           }}
         />
 
-        {/* Save prediction button */}
         <button
           onClick={savePrediction}
           disabled={isLocked}
           className="rounded-xl bg-emerald-500 px-5 py-3 font-bold text-slate-950 hover:bg-emerald-400 disabled:bg-slate-600 disabled:text-slate-300"
         >
-          Kinnita
+          {isLocked ? "LUKUS" : "Kinnita"}
         </button>
 
-        {/* Penalty winner selection only for knockout matches (73+) and draw predictions */}
         {(matchNumber ?? 0) >= 73 &&
           homeScore !== "" &&
           awayScore !== "" &&
@@ -336,7 +279,7 @@ export default function PredictionForm({
                   type="button"
                   disabled={isLocked}
                   onClick={() => setPenaltyWinner("home")}
-                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition ${
+                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition disabled:opacity-50 ${
                     penaltyWinner === "home"
                       ? "border-purple-300 bg-purple-300 text-slate-950 shadow-lg shadow-purple-300/30"
                       : "border-purple-300/30 bg-slate-800 text-purple-200 hover:border-purple-300 hover:bg-slate-700"
@@ -349,7 +292,7 @@ export default function PredictionForm({
                   type="button"
                   disabled={isLocked}
                   onClick={() => setPenaltyWinner("away")}
-                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition ${
+                  className={`min-w-[120px] rounded-xl border px-4 py-2 text-sm font-black transition disabled:opacity-50 ${
                     penaltyWinner === "away"
                       ? "border-purple-300 bg-purple-300 text-slate-950 shadow-lg shadow-purple-300/30"
                       : "border-purple-300/30 bg-slate-800 text-purple-200 hover:border-purple-300 hover:bg-slate-700"
@@ -358,6 +301,7 @@ export default function PredictionForm({
                   ✈️ Võõrsil
                 </button>
               </div>
+
               {penaltyWinner && (
                 <p className="mt-2 text-xs font-bold text-purple-300">
                   Valitud penaltite võitja:{" "}
@@ -368,7 +312,6 @@ export default function PredictionForm({
           )}
       </div>
 
-      {/* Button for activating late-change power */}
       {lateChangeAvailable && !lateChangeActive && (
         <button
           type="button"
@@ -379,18 +322,13 @@ export default function PredictionForm({
         </button>
       )}
 
-      {/* Message shown when late-change power is active */}
       {lateChangeActive && safeMatchMinute <= 45 && (
         <p className="mt-3 text-sm font-bold text-cyan-300">
           🕒 Hilisem muudatus aktiivne — saad muuta kuni 45&apos;
         </p>
       )}
 
-      {/* Locked state warning */}
-      {isLocked && <p className="mt-2 text-red-400">Lukus</p>}
-
-      {/* General status or error message */}
-      {message && <p className="mt-2 text-sm">{message}</p>}
+      {message && <p className="mt-2 text-sm text-slate-200">{message}</p>}
     </div>
   );
 }
