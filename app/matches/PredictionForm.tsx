@@ -265,10 +265,11 @@ export default function PredictionForm({
           {isLocked ? "LUKUS" : "Kinnita"}
         </button>
 
-        {((matchNumber ?? 0) >= 73 || (matchNumber ?? 0) === 3 || (matchNumber ?? 0) === 8) &&
-  homeScore !== "" &&
-  awayScore !== "" &&
-  Number(homeScore) === Number(awayScore) && (
+        {((matchNumber ?? 0) >= 73 ||
+          (matchNumber ?? 0) === 3 ||
+          (matchNumber ?? 0) === 8) &&
+          homeScore !== "" &&
+          awayScore !== "" &&
           Number(homeScore) === Number(awayScore) && (
             <div className="mt-3 w-full rounded-2xl bg-purple-300/10 p-3">
               <p className="mb-2 text-sm font-bold text-purple-300">
