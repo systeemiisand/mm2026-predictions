@@ -232,7 +232,7 @@ export default function SpyPower({
         <button
           type="button"
           onClick={useSpy}
-          className="rounded-xl bg-purple-300 px-4 py-2 text-sm font-black text-slate-950 hover:bg-purple-200"
+          className="inline-flex h-10 items-center justify-center rounded-xl bg-green-300 px-4 text-sm font-black text-slate-950 hover:bg-purple-200"
         >
           👁 Vaata teiste ennustusi
         </button>
