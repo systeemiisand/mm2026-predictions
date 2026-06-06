@@ -201,14 +201,7 @@ export default function SpyPower({
       setSpyAlreadyUsed(true);
       return;
     }
-    // Show database error if activation fails
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    /**
-     * Local power object passed back to parent component
+    /* Local power object passed back to parent component
      */
     const usedPower = {
       power_type: "spy",
