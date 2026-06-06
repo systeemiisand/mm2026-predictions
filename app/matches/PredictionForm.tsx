@@ -265,9 +265,7 @@ export default function PredictionForm({
           {isLocked ? "LUKUS" : "Kinnita"}
         </button>
 
-        {((matchNumber ?? 0) >= 73 ||
-          (matchNumber ?? 0) === 3 ||
-          (matchNumber ?? 0) === 8) &&
+        {(matchNumber ?? 0) >= 73 &&
           homeScore !== "" &&
           awayScore !== "" &&
           Number(homeScore) === Number(awayScore) && (
