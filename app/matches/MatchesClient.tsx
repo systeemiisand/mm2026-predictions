@@ -315,9 +315,12 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
           >
             {/* Match header */}
             <div className="mb-4 flex items-center justify-between">
-              {/* <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-slate-950">
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-slate-700">
+                Grupp {match.group_name}
+              </span>
+              <span className="rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white ring-1 ring-indigo-500/20">
                 Mäng {match.match_number}
-              </span> */}
+              </span>
 
               {/* Match kickoff time */}
               <span className="text-xs text-slate-950">
