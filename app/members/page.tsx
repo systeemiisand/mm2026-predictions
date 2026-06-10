@@ -92,7 +92,7 @@ export default function MembersPage() {
         {members.map((member, index) => (
           <div
             key={member.id}
-            className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl"
+            className="rounded-2xl border border-white bg-white p-5 shadow-xl"
           >
             {/* Card header */}
             <div className="flex items-center justify-between">

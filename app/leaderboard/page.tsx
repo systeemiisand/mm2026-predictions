@@ -37,7 +37,7 @@ export default async function LeaderboardPage() {
         {leaderboard?.map((row, index) => (
           <div
             key={row.user_id}
-            className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl"
+            className="flex items-center justify-between rounded-2xl border border-white bg-white p-5 shadow-xl"
           >
             {/* Left side: ranking position + player name */}
             <div className="flex items-center gap-4">

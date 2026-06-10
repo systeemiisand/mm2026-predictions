@@ -198,14 +198,14 @@ export default function TournamentPage() {
         {/* Live countdown until tournament start */}
         <TournamentCountdown />
 
-        <p className="mt-3 max-w-2xl text-white/80">
+        <p className="mt-3 max-w-2xl text-white">
           Ennusta maailmameister ja finalist enne turniiri algust ning teeni
           lisapunkte.
         </p>
       </section>
 
       {/* Main prediction card */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+      <div className="rounded-3xl border border-white bg-white p-6 shadow-xl">
         {/* Short explanation */}
 
         {/* Winner selection */}

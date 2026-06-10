@@ -83,7 +83,7 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-xl px-6 py-10">
       <h1 className="mb-8 text-4xl font-black">Minu profiil</h1>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+      <div className="rounded-3xl border border-white bg-white p-6 shadow-xl">
         <label className="text-sm font-bold text-cyan-300">Nimi</label>
 
         <input

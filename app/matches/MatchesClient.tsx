@@ -249,6 +249,22 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
     loadUserData();
   }, []);
 
+  const [filter, setFilter] = useState<"all" | "ended" | "upcoming">("all");
+  const filteredMatches = matches
+    .filter((match) => {
+      const isEnded =
+        match.home_score != null && match.away_score != null;
+
+      if (filter === "ended") return isEnded;
+      if (filter === "upcoming") return !isEnded;
+      return true;
+    })
+    .sort(
+      (a, b) =>
+        new Date(a.kickoff_at).getTime() -
+        new Date(b.kickoff_at).getTime()
+    );
+
   return (
     <>
       {/* Loading indicator while user data is fetched */}
@@ -258,18 +274,50 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
         </p>
       )}
 
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setFilter("all")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${filter === "all"
+              ? "bg-cyan-500 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+            }`}
+        >
+          Kõik
+        </button>
+
+        <button
+          onClick={() => setFilter("upcoming")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${filter === "upcoming"
+              ? "bg-cyan-500 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+            }`}
+        >
+          Tulevased
+        </button>
+
+        <button
+          onClick={() => setFilter("ended")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${filter === "ended"
+              ? "bg-cyan-500 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+            }`}
+        >
+          Lõppenud
+        </button>
+      </div>
+
       {/* Match cards grid */}
       <div className="grid gap-5 md:grid-cols-2">
-        {matches.map((match) => (
+        {filteredMatches.map((match) => (
           <div
             key={match.id}
-            className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl"
+            className="rounded-2xl border border-white bg-white p-5 shadow-xl"
           >
             {/* Match header */}
             <div className="mb-4 flex items-center justify-between">
-              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-slate-950">
-                Mäng {match.match_number ?? match.id}
-              </span>
+              {/* <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-slate-950">
+                Mäng {match.match_number}
+              </span> */}
 
               {/* Match kickoff time */}
               <span className="text-xs text-slate-950">
