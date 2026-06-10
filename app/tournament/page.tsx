@@ -88,7 +88,7 @@ export default function TournamentPage() {
   /**
    * Locks tournament predictions after tournament start date.
    */
-  const tournamentStarted = new Date() >= new Date("2026-06-10T22:00+03:00");
+  const tournamentStarted = new Date() >= new Date("2026-06-11T22:00+03:00");
 
   /**
    * Loads user's saved tournament prediction from Supabase.
