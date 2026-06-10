@@ -47,7 +47,7 @@ export default async function LeaderboardPage() {
               </div>
 
               {/* User display name */}
-              <div className="font-bold">{row.display_name}</div>
+              <div className="font-bold">{row.display_name.slice(0, 10)}</div>
             </div>
 
             {/* Right side: total tournament points */}
