@@ -39,11 +39,11 @@ export default function AuthButton() {
   }
 
   return (
-    <Link
+    <a
       href="/login"
-      className="rounded-xl bg-emerald-500 px-4 py-2 font-bold text-slate-950 hover:bg-emerald-400"
+      className="rounded-xl bg-emerald-500 px-4 py-2 font-bold hover:bg-emerald-400"
     >
       Logi sisse
-    </Link>
+    </a>
   );
 }
