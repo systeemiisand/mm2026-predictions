@@ -7,9 +7,9 @@ import { useClickAway } from "@uidotdev/usehooks";
 
 const HamburgerMenu = () => {
   const [toggled, setToggled] = useState(false);
-  const ref = useClickAway(() => {
+    const ref = useClickAway<HTMLDivElement>(() => {
     setToggled(false);
-  });
+    });
 
   return (
     <div className="relative">
