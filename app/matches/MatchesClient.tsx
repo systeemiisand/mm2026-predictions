@@ -28,6 +28,7 @@ type Match = any;
 type Prediction = {
   predicted_home_score: number;
   predicted_away_score: number;
+  predicted_penalty_winner?: "home" | "away" | null;
 };
 
 /**
@@ -215,6 +216,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
         predictionMap[prediction.match_id] = {
           predicted_home_score: prediction.predicted_home_score,
           predicted_away_score: prediction.predicted_away_score,
+          predicted_penalty_winner: prediction.predicted_penalty_winner,
         };
       });
 
