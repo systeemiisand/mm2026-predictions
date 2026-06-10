@@ -3,9 +3,13 @@
 import AuthButton from "@/components/AuthButton";
 import UserStatus from "@/components/UserStatus";
 import { useState } from "react";
+import { useClickAway } from "@uidotdev/usehooks";
 
 const HamburgerMenu = () => {
   const [toggled, setToggled] = useState(false);
+  const ref = useClickAway(() => {
+    setToggled(false);
+  });
 
   return (
     <div className="relative">
@@ -32,7 +36,7 @@ const HamburgerMenu = () => {
       </button>
 
       {toggled && (
-        <div className="absolute right-0 top-14 w-72 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
+        <div ref={ref} className="absolute right-0 top-14 w-72 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
           <div className="border-b border-slate-700 p-4">
             <div className="flex items-center justify-between gap-2">
               <UserStatus />
