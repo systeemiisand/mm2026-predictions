@@ -249,7 +249,7 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
     loadUserData();
   }, []);
 
-  const [filter, setFilter] = useState<"all" | "ended" | "upcoming">("all");
+  const [filter, setFilter] = useState<"all" | "ended" | "upcoming">("upcoming");
   const filteredMatches = matches
     .filter((match) => {
       const isEnded =
