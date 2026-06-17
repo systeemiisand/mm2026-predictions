@@ -50,7 +50,7 @@ export default function PredictionForm({
 
   const safeMatchMinute = matchMinute ?? estimatedMinute;
 
-  const canLateChange = hasStarted && safeMatchMinute <= 45 && lateChangeActive;
+  const canLateChange = hasStarted && safeMatchMinute <= 60 && lateChangeActive;
 
   const isLocked = hasStarted && !canLateChange;
 
@@ -164,7 +164,7 @@ export default function PredictionForm({
       return;
     }
 
-    if (safeMatchMinute > 45) {
+    if (safeMatchMinute > 60) {
       setMessage(
         "Liiga hilja. Hilisem muutus töötab ainult kuni 45. minutini.",
       );

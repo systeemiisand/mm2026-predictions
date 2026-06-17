@@ -252,18 +252,17 @@ export default function MatchesClient({ matches }: { matches: Match[] }) {
   const [filter, setFilter] = useState<"all" | "ended" | "upcoming">("upcoming");
   const filteredMatches = matches
     .filter((match) => {
-      const isEnded =
-        match.home_score != null && match.away_score != null;
+      const isEnded = match.home_score != null && match.away_score != null;
 
       if (filter === "ended") return isEnded;
       if (filter === "upcoming") return !isEnded;
       return true;
     })
-    .sort(
-      (a, b) =>
-        new Date(a.kickoff_at).getTime() -
-        new Date(b.kickoff_at).getTime()
-    );
+    .sort((a, b) => {
+      const diff =
+        new Date(a.kickoff_at).getTime() - new Date(b.kickoff_at).getTime();
+      return filter === "ended" ? -diff : diff;
+    });
 
   return (
     <>
