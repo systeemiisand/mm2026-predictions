@@ -118,8 +118,20 @@ export default function PredictionForm({
       return;
     }
 
-    const { error } = await supabase.from("predictions").upsert(
-      {
+    const { error } = initialPrediction
+      ? await supabase
+        .from("predictions")
+        .update({
+          predicted_home_score: Number(homeScore),
+          predicted_away_score: Number(awayScore),
+          predicted_penalty_winner:
+            Number(homeScore) === Number(awayScore)
+              ? penaltyWinner || null
+              : null,
+        })
+        .eq("user_id", user.id)
+        .eq("match_id", matchId)
+      : await supabase.from("predictions").insert({
         user_id: user.id,
         match_id: matchId,
         predicted_home_score: Number(homeScore),
@@ -128,11 +140,7 @@ export default function PredictionForm({
           Number(homeScore) === Number(awayScore)
             ? penaltyWinner || null
             : null,
-      },
-      {
-        onConflict: "user_id,match_id",
-      },
-    );
+      });
 
     if (error) {
       if (error.message.includes("row-level security")) {
