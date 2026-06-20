@@ -94,7 +94,7 @@ export default function PredictionForm({
       return;
     }
 
-    if (isLocked) {
+    if (isLocked && !(canLateChange)) {
       setMessage("LUKUS! Ennustust ei saa pärast mängu algust muuta.");
       return;
     }
