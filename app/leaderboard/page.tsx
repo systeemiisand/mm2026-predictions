@@ -34,28 +34,25 @@ export default async function LeaderboardPage() {
 
       {/* Leaderboard rows */}
       <div className="space-y-4">
-        {leaderboard?.map((row, index) => (
-          <div
-            key={row.user_id}
-            className="flex items-center justify-between rounded-2xl border border-white bg-white p-5 shadow-xl"
-          >
-            {/* Left side: ranking position + player name */}
-            <div className="flex items-center gap-4">
-              {/* Ranking circle */}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 font-black text-slate-950">
-                {index + 1}
+        {leaderboard?.map((row, index, arr) => {
+          const rank = arr.findIndex(r => r.total_points === row.total_points) + 1;
+          return (
+            <div
+              key={row.user_id}
+              className="flex items-center justify-between rounded-2xl border border-white bg-white p-5 shadow-xl"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 font-black text-slate-950">
+                  {rank}
+                </div>
+                <div className="font-bold">{row.display_name.slice(0, 10)}</div>
               </div>
-
-              {/* User display name */}
-              <div className="font-bold">{row.display_name.slice(0, 10)}</div>
+              <div className="text-2xl font-black text-emerald-300">
+                {row.total_points} pts
+              </div>
             </div>
-
-            {/* Right side: total tournament points */}
-            <div className="text-2xl font-black text-emerald-300">
-              {row.total_points} pts
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
