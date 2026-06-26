@@ -28,6 +28,8 @@ export default async function LeaderboardPage() {
     return <div className="p-8">Error: {error.message}</div>;
   }
 
+  const uniquePointTotals = [...new Set(leaderboard.map(r => r.total_points))].sort((a, b) => b - a);
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="mb-8 text-4xl font-black">Edetabel</h1>
@@ -35,7 +37,7 @@ export default async function LeaderboardPage() {
       {/* Leaderboard rows */}
       <div className="space-y-4">
         {leaderboard?.map((row, index, arr) => {
-          const rank = arr.findIndex(r => r.total_points === row.total_points) + 1;
+          const rank = uniquePointTotals.indexOf(row.total_points) + 1;
           return (
             <div
               key={row.user_id}
